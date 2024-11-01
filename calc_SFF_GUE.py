@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 import os
+from parameters import *
 
 def generate_goe_matrix(N):
     """
@@ -46,9 +47,8 @@ def spectral_form_factor(N, t_vals, num_realizations):
 
 def main():
     # Parameters
-    j=2; M=4
     N = int((2*j+1)*M/2)  # Size of GOE matrix
-    num_realizations = 1  # Number of random matrices to average over
+    num_realizations = 1000  # Number of random matrices to average over
     
     # Generate the intervals with the specified number of points
     t_vals_0_to_01 = np.linspace(0, 0.1, 1000, endpoint=False)

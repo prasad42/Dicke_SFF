@@ -4,11 +4,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 from tqdm import tqdm
-
-# Parameters
-j = 20
-M = 400
-g_arr = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+from parameters import *
 
 # Calculate Level Spacing Ratio
 dataList = []

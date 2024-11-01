@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings('ignore')
 from tqdm import tqdm
+from parameters import *
 
 # Functions
 def loc_den(v, i, lvl_arr):
@@ -117,6 +118,3 @@ for g_ind, lvl_sp in enumerate(dataList):
 # Show the plot
 plt.savefig('Lvl_stats')
 plt.show()
-
-
-

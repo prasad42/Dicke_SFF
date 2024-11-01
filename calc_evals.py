@@ -10,6 +10,7 @@ import multiprocessing as mp
 import time
 from tqdm import tqdm
 import os
+from parameters import *
 
 '''
 -------------------------------------------------------------------------------------
@@ -149,45 +150,6 @@ def Ham_eig_str(w, w0, g_arr, M, j):
         np.save(f"evals_par_test/evals_g={g}_j={j}_M={M}.npy",eval_list)
         
     return eval_list
-
-'''
--------------------------------------------------------------------------------------
-				        # parameters #
--------------------------------------------------------------------------------------
-'''
-
-# SET UP THE CALCULATION
-w  = 1.0
-w0 = 1.0
-# Coupling strengths
-# g_arr = np.array([])
-#g_arr = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]
-g_arr = np.array([0.1,0.2,0.3,0.4, 0.5])
-# g_arr = np.concatenate((g_arr,np.arange(0.41,0.5,0.01)))
-# g_arr = np.concatenate((g_arr,np.array([0.5])))
-# g_arr = np.concatenate((g_arr,np.arange(0.51,0.6,0.01)))
-g_arr = np.concatenate((g_arr,np.array([0.6,0.7,0.8,0.9,1.0])))
-
-# Inverse temperature
-beta = 0
-
-# local unfolding parameter
-v = 30
-# gaussian unfolding parameter
-sig = 10
-
-#
-eta = 1
-
-nproc = 5
-
-# Pseudospin
-j = 2
-# Dimension of Pseudospin
-# n = 2*j + 1
-# Upper limit of bosonic fock states
-M = 4
-N_dim = (2*j+1)*M
 
 '''
 -------------------------------------------------------------------------------
