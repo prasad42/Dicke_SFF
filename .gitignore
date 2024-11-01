@@ -1,0 +1,36 @@
+# Ignore large data folders
+ev/
+evals/
+evals_par/
+plots/
+SFF/
+SFF_GOE/
+SFF_GUE/
+
+# Ignore Python cache files
+__pycache__/
+*.pyc
+
+# Ignore environment folders
+env/
+venv/
+
+# Ignore system files
+.DS_Store
+Thumbs.db
+
+# Ignore IDE or editor settings
+.vscode/
+.idea/
+
+# Ignore logs and databases
+*.log
+*.sqlite3
+
+# Ignore compiled code
+*.o
+*.out
+
+# Ignore specific sensitive files
+config.yaml
+.env
