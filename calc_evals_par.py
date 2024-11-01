@@ -147,7 +147,7 @@ def Ham_eig_str(w, w0, g_arr, M, j):
         H = proj_ev_H(w, w0, g, M, j)
         eval_list = np.linalg.eigvals(H)
         eval_list = np.sort(eval_list)
-        np.save(f"evals_par_test/evals_g={g}_j={j}_M={M}.npy",eval_list)
+        np.save(f"evals_par/evals_g={g}_j={j}_M={M}.npy",eval_list)
         
     return eval_list
 

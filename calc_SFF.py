@@ -11,6 +11,7 @@ import time
 from tqdm import tqdm
 import os
 from parameters import *
+import runpy
 
 '''
 -------------------------------------------------------------------------------------
@@ -228,7 +229,10 @@ if __name__ == '__main__':
     with mp.Pool(nproc) as pool:
         args_list = []
         for g in g_arr:
-            eval_list = np.load(f"evals_par/evals_g={np.round(g,2)}_j={j}_M={M}.npy")            
+            if os.path.exists(f"evals_par/evals_g={np.round(g,2)}_j={j}_M={M}.npy"):
+                eval_list = np.load(f"evals_par/evals_g={np.round(g,2)}_j={j}_M={M}.npy")
+            else:
+                runpy.run_path("calc_evals_par.py")
             # Prepare arguments for parallelization
             args_list.append([eval_list, tlist, beta, g, M, j, eta])
         # execute tasks and process results in order

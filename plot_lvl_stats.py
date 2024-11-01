@@ -5,6 +5,8 @@ import warnings
 warnings.filterwarnings('ignore')
 from tqdm import tqdm
 from parameters import *
+import os
+import runpy
 
 # Functions
 def loc_den(v, i, lvl_arr):
@@ -78,12 +80,16 @@ v = 30
 g_arr = [0.1, 0.2, 0.4, 0.6, 0.8, 1.0]
 
 # Plot Level Statistics
-
 dataList = []
 for g in g_arr:
     print(f'g={g}')
-    # Load the unfolded energies
-    evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    # Load the energies
+    if os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
+        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    else:
+        runpy.run_path("calc_SFF_GOE")
+        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    # Unfold the energies
     evals_unfl = unf_lvl(v, evals)
     lvl_sp_arr = []
     for i in range(len(evals_unfl)-1):
@@ -116,5 +122,7 @@ for g_ind, lvl_sp in enumerate(dataList):
     plt.tight_layout()
 
 # Show the plot
-plt.savefig('Lvl_stats')
+if not os.path.exists("plots"):
+    os.mkdir("plots")
+plt.savefig('plots/Level_Statistics')
 plt.show()

@@ -5,12 +5,18 @@ import warnings
 warnings.filterwarnings('ignore')
 from tqdm import tqdm
 from parameters import *
+import os
+import runpy
 
 # Calculate Level Spacing Ratio
 dataList = []
 for g in g_arr:
-    data = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
-    data = np.real(data)
+    if os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
+        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    else:
+        runpy.run_path("calc_SFF_GOE")
+        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    data = np.real(evals)
     dataList.append(data)
 
 delta_arr = []
@@ -41,5 +47,8 @@ plt.ylabel(r'$\left\langle r\right\rangle$')
 plt.legend()
 plt.grid()
 plt.ylim(0.38,0.54)
-plt.savefig('Lvl_spacing_ratio')
+
+if not os.path.exists("plots"):
+    os.mkdir("plots")
+plt.savefig('plots/Level_spacing_ratio')
 plt.show()

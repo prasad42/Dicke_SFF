@@ -46,9 +46,6 @@ def spectral_form_factor(N, t_vals, num_realizations):
     return sff_vals
 
 def main():
-    # Parameters
-    N = int((2*j+1)*M/2)  # Size of GOE matrix
-    num_realizations = 1000  # Number of random matrices to average over
     
     # Generate the intervals with the specified number of points
     t_vals_0_to_01 = np.linspace(0, 0.1, 1000, endpoint=False)

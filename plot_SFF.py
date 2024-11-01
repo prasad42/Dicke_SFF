@@ -3,6 +3,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
 from parameters import *
+import os
+import runpy
 
 # Regular Phase
 g_arr_reg = [0.1, 0.2, 0.3, 0.4, 0.5]
@@ -19,7 +21,11 @@ for g in g_arr_reg:
 # Rolling average data
 dataList = []
 for g in g_arr_reg:
-    data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
+    if os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
+        data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
+    else:
+        runpy.run_path("calc_SFF.py")
+        data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
     data_rl = []
     # Window size for rolling average
     win = 50
@@ -70,7 +76,11 @@ for g in g_arr_ch:
 # Rolling average data
 dataList = []
 for g in g_arr_ch:
-    data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
+    if os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
+        data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
+    else:
+        runpy.run_path("calc_SFF.py")
+        data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
     data_rl = []
     # Window size for rolling average
     win = 50
@@ -95,9 +105,15 @@ for g_ind, data in enumerate(dataList):
     data_raw = dataList_raw[g_ind]
     data_raw = np.column_stack(data_raw)
     plt.plot(data_raw[0],data_raw[1],color='0.8')
-    # Plot GOE 
-    data1 = np.loadtxt(f"SFF_GOE/goe_sff_data,j={j},M={M},N={N},ntraj=1000.dat",dtype=complex)
+
+    # Plot GOE
+    if os.path.exists(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat"):
+        data1 = np.loadtxt(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat")
+    else:
+        runpy.run_path("calc_SFF_GOE.py")
+        data1 = np.loadtxt(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat")
     data1 = np.column_stack(data1)    
+
     plt.plot(data1[0],data1[1],'--k',label=f"GOE")
     # Plot moving average
     data = np.column_stack(data)
@@ -108,5 +124,8 @@ for g_ind, data in enumerate(dataList):
     plt.legend()
     plt.grid(True)
 # plt.savefig('SFF closed Dicke chaotic phase compared to GOE')
-plt.savefig('SFF closed Dicke chaotic phase compared to GOE')
+
+if not os.path.exists("plots"):
+    os.mkdir("plots")
+plt.savefig('plots/SFF closed Dicke chaotic phase compared to GOE')
 plt.show()
