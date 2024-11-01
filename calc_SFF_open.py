@@ -168,7 +168,7 @@ def integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj):
     
     #SFF_avg_list = SFF_list(psi0, rho_list, tlist)
 
-    with open(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat", 'w') as file:
+    with open(f"SFF/SFFvsTime,kappa={kappa},j={j},M={M},g={g},beta={beta},ntraj={ntraj}.dat", 'w') as file:
         for t_ind, t in enumerate(tlist):
             file.write("{}".format(t))
             SFF = SFF_list[:,t_ind][0]
@@ -209,24 +209,23 @@ def CGS_fun(ev_list, evals_list, beta):
 
     return psi0
 
-if __name__ == '__main__':
-    for g in g_arr: 
-        # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
-        if os.path.exists(f"ev/ev_g={g}_j={j}_M={M}.npy"):
-            ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-        else:
-            runpy.run_path("calc_evals_full_spec.py")
-            ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True) 
+for g in g_arr: 
+    # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
+    if os.path.exists(f"ev/ev_g={g}_j={j}_M={M}.npy"):
+        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
+    else:
+        runpy.run_path("calc_evals_full_spec.py")
+        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True) 
 
-        if os.path.exists(f"evals/evals_g={g}_j={j}_M={M}.npy"):
-            evals_list = np.load(f"evals/evals_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-        else:
-            runpy.run_path("calc_evals_full_spec.py")
-            ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
+    if os.path.exists(f"evals/evals_g={g}_j={j}_M={M}.npy"):
+        evals_list = np.load(f"evals/evals_g={g}_j={j}_M={M}.npy",allow_pickle=True)
+    else:
+        runpy.run_path("calc_evals_full_spec.py")
+        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
 
-        # Initial state is the CGS state
-        psi0 = CGS_fun(ev_list, evals_list, beta)
+    # Initial state is the CGS state
+    psi0 = CGS_fun(ev_list, evals_list, beta)
 
-        print(f'j={j}, g={g}, kappa={kappa}')
-        
-        integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj)
+    print(f'j={j}, g={g}, kappa={kappa}')
+    
+    integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj)

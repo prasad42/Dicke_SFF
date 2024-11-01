@@ -11,11 +11,9 @@ import runpy
 # Calculate Level Spacing Ratio
 dataList = []
 for g in g_arr:
-    if os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
-        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
-    else:
-        runpy.run_path("calc_SFF_GOE")
-        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    if not os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
+        runpy.run_path("calc_evals_par.py",init_globals={'__name__': '__main__'})
+    evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
     data = np.real(evals)
     dataList.append(data)
 

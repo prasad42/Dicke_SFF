@@ -67,7 +67,7 @@ def main():
         os.mkdir("SFF_GOE")
 
     # Save to a text file
-    np.savetxt(f"SFF_GOE/goe_sff_data_N={N}_ntraj={num_realizations}.dat", data_to_save, comments="", fmt="%.8e")
+    np.savetxt(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N},ntraj={num_realizations}.dat", data_to_save, comments="", fmt="%.8e")
     
     # Plot the results
     plt.plot(t_vals, sff_vals, label=f'GOE (N={N})')

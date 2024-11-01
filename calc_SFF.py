@@ -190,7 +190,7 @@ def SFF_list(eval_list, tlist, beta, g, M, j, eta):
     if not os.path.exists("SFF"):
         os.mkdir("SFF")
 
-    with open(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", 'a') as file:
+    with open(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", 'w') as file:
         # average energy of the spectrum
         #E_avg = np.average(eval_list)
         # width of the spectrum
@@ -219,8 +219,6 @@ def SFF_list(eval_list, tlist, beta, g, M, j, eta):
 			        # Calculate/Remove SFF#
 -------------------------------------------------------------------------------	
 '''
-# Start the timer
-InitialTime = time.time()
 
 # Find the SFF of the spectrum
 # protect the entry point
@@ -238,10 +236,6 @@ if __name__ == '__main__':
         # execute tasks and process results in order
         for result in pool.starmap(SFF_list, args_list, chunksize = 1):
             print(f'Result: {result}')
-
-#end the timer                       
-FinalTime = time.time()
-print("\n Total time elapsed: " + str((FinalTime - InitialTime)/60) + "mins")
 
 '''
 ----------------------------------------------------------------------------------

@@ -72,23 +72,14 @@ def unf_lvl(v, eval_list):
     
     return lvl_unf
 
-
-# Parameters 
-j = 20
-M = 80
-v = 30
-g_arr = [0.1, 0.2, 0.4, 0.6, 0.8, 1.0]
-
 # Plot Level Statistics
 dataList = []
 for g in g_arr:
     print(f'g={g}')
     # Load the energies
-    if os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
-        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
-    else:
-        runpy.run_path("calc_SFF_GOE")
-        evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+    if not os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
+        runpy.run_path("calc_evals_par.py",init_globals={'__name__': '__main__'})
+    evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
     # Unfold the energies
     evals_unfl = unf_lvl(v, evals)
     lvl_sp_arr = []
@@ -99,7 +90,7 @@ for g in g_arr:
     dataList.append(lvl_sp_arr)
 
 # Plot
-plt.figure(figsize=(9,5))
+plt.figure(figsize=(9,7))
 for g_ind, lvl_sp in enumerate(dataList):
     # Reference plots
     x_val = np.arange(0,4,0.1)
@@ -107,7 +98,7 @@ for g_ind, lvl_sp in enumerate(dataList):
     y_poi = np.exp(-x_val)
     # Create a histogram
     #plt.suptitle(f'Lower Energy Levels\n j={j}, M={M}')
-    plt.subplot(2,3,g_ind+1)
+    plt.subplot(4,3,g_ind+1)
     plt.title(f'g={g_arr[g_ind]}')
     plt.plot(x_val, y_gauss, linestyle = '--', label = 'Gaussian', linewidth = 1)
     plt.plot(x_val, y_poi, label = 'Poisson', linewidth = 1)

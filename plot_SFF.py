@@ -24,7 +24,7 @@ for g in g_arr_reg:
     if os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
         data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
     else:
-        runpy.run_path("calc_SFF.py")
+        runpy.run_path("calc_SFF.py",init_globals={'__name__': '__main__'})
         data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
     data_rl = []
     # Window size for rolling average
@@ -107,12 +107,11 @@ for g_ind, data in enumerate(dataList):
     plt.plot(data_raw[0],data_raw[1],color='0.8')
 
     # Plot GOE
-    if os.path.exists(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat"):
-        data1 = np.loadtxt(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat")
-    else:
-        runpy.run_path("calc_SFF_GOE.py")
-        data1 = np.loadtxt(f"SFF_GOE/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat")
-    data1 = np.column_stack(data1)    
+    if not os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
+        runpy.run_path("calc_SFF.py",init_globals={'__name__': '__main__'})
+        
+    data1 = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat")
+    data1 = np.column_stack(data1)
 
     plt.plot(data1[0],data1[1],'--k',label=f"GOE")
     # Plot moving average
