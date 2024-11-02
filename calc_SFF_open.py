@@ -211,17 +211,13 @@ def CGS_fun(ev_list, evals_list, beta):
 
 for g in g_arr: 
     # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
-    if os.path.exists(f"ev/ev_g={g}_j={j}_M={M}.npy"):
-        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-    else:
+    if not os.path.exists(f"ev/ev_g={g}_j={j}_M={M}.npy"):
         runpy.run_path("calc_evals_full_spec.py")
-        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True) 
+    ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
 
-    if os.path.exists(f"evals/evals_g={g}_j={j}_M={M}.npy"):
-        evals_list = np.load(f"evals/evals_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-    else:
+    if not os.path.exists(f"evals/evals_g={g}_j={j}_M={M}.npy"):
         runpy.run_path("calc_evals_full_spec.py")
-        ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
+    evals_list = np.load(f"evals/evals_g={g}_j={j}_M={M}.npy",allow_pickle=True)
 
     # Initial state is the CGS state
     psi0 = CGS_fun(ev_list, evals_list, beta)

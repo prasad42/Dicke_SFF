@@ -74,7 +74,6 @@ def Ham_eig_str(w, w0, g_arr, M, j):
         os.mkdir("ev")
 
     for g in tqdm(g_arr):
-        print(f"g={g}\n")
 
         # Calculate the eigenvalues and the eigenvectors
         H = np.array(DH_fun(w, w0, g, M, j).full())
@@ -97,6 +96,7 @@ def Ham_eig_str(w, w0, g_arr, M, j):
 '''
 
 # Evaluate the eigenvalues of the even parity Hamiltonian
+print("Generating data for eigenvalues and eigenvectors of the full spectrum")
 Ham_eig_str(w, w0, g_arr, M, j)
 
 '''
