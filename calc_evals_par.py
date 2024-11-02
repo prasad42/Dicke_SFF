@@ -156,15 +156,9 @@ def Ham_eig_str(w, w0, g_arr, M, j):
 			        # Calculate/Remove SFF#
 -------------------------------------------------------------------------------	
 '''
-# Start the timer
-InitialTime = time.time()
 
 # Evaluate the eigenvalues of the even parity Hamiltonian
 Ham_eig_str(w, w0, g_arr, M, j)
-
-#end the timer                       
-FinalTime = time.time()
-print("\n Total time elapsed: " + str((FinalTime - InitialTime)/60) + "mins")
 
 '''
 ----------------------------------------------------------------------------------

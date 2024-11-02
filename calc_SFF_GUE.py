@@ -63,11 +63,9 @@ def main():
     # Combine t_vals and sff_vals into a 2D array
     data_to_save = np.column_stack((t_vals, sff_vals))
 
-    if not os.path.exists("SFF_GUE"):
-        os.mkdir("SFF_GUE")
-
-    # Save to a text file
-    np.savetxt(f"SFF_GUE/gue_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat", data_to_save, comments="", fmt="%.8e")
-
+    if not os.path.exists(f"SFF/gue_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat"):
+        # Save to a text file
+        np.savetxt(f"SFF/gue_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat", data_to_save, comments="", fmt="%.8e")
+    
 if __name__ == "__main__":
     main()
