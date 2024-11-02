@@ -14,9 +14,9 @@ g_arr = np.array([0.1,0.2,0.3,0.4, 0.5])
 g_arr = np.concatenate((g_arr,np.array([0.6,0.7,0.8,0.9,1.0])))
 
 # Pseudospin
-j = 20
+j = 1
 # Upper limit of bosonic fock states
-M = 80
+M = 2
 # local unfolding parameter
 v = 30
 
@@ -52,7 +52,7 @@ tlist = np.concatenate([t_vals_0_to_01, t_vals_01_to_1, t_vals_1_to_10, t_vals_1
 
 # Time list for open model with MCWF method
 StartTime = 0
-LateTime = 100
+LateTime = 1
 tlist_open = np.arange(StartTime, LateTime, 0.01)
 
 # gaussian unfolding parameter
