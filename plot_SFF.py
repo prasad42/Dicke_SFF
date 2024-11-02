@@ -88,7 +88,7 @@ if __name__ == '__main__':
     dataList = []
     for g in g_arr_ch:
         if not os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
-                calc_SFF.main()
+            calc_SFF.main()
         
         data = np.loadtxt(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat", dtype=complex)
         data_rl = []
@@ -116,9 +116,9 @@ if __name__ == '__main__':
         data_raw = np.column_stack(data_raw)
         plt.plot(data_raw[0],data_raw[1],color='0.8')
 
-        # Plot GOE 
-        if not os.path.exists(f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta}.dat"):
-                calc_SFF.main()
+        # Plot GOE
+        if not os.path.exists(f"SFF/goe_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat"):
+            calc_SFF_GOE.main()
         data1 = np.loadtxt(f"SFF/goe_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat",dtype=complex)
         data1 = np.column_stack(data1)
 

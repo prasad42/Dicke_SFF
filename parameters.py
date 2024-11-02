@@ -31,13 +31,13 @@ kappa = 1.0
 # Number of trajectories of MCWF method
 ntraj = 100
 # Values of beta for open model
-beta_arr = [10]
+beta_arr = [0, 2, 5, 7, 10]
 
 # Number of random matrices to average over in GOE and GUE
 num_realizations = 1000  
 
 # Number of Processes
-nproc = 5
+nproc = 40
 
 # Time list
 # Generate the intervals with the specified number of points
