@@ -1,0 +1,21 @@
+==========================================
+SLURM_CLUSTER_NAME = paramananta
+SLURM_ARRAY_JOB_ID = 
+SLURM_ARRAY_TASK_ID = 
+SLURM_ARRAY_TASK_COUNT = 
+SLURM_ARRAY_TASK_MAX = 
+SLURM_ARRAY_TASK_MIN = 
+SLURM_JOB_ACCOUNT = iitgn
+SLURM_JOB_ID = 19446748
+SLURM_JOB_NAME = 2siteBH
+SLURM_JOB_NODELIST = cn[017-021]
+SLURM_JOB_USER = prasad.pawar
+SLURM_JOB_UID = 40139
+SLURM_JOB_PARTITION = medium
+SLURM_TASK_PID = 33698
+SLURM_SUBMIT_DIR = /home/prasad.pawar/Projects/Dicke_SFF
+SLURM_CPUS_ON_NODE = 48
+SLURM_NTASKS = 240
+SLURM_TASK_PID = 33698
+==========================================
+j=20, M=80, g=0.1, beta=0.1, kappa=0.1

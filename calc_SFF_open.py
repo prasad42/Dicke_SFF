@@ -1,6 +1,5 @@
 import numpy as np
 import qutip as qt
-import matplotlib.pyplot as plt
 import time
 import multiprocessing as mp
 from tqdm import tqdm

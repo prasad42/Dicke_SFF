@@ -1,0 +1,2 @@
+/home/prasad.pawar/.conda/envs/qutip/lib/python3.13/site-packages/loky/process_executor.py:752: UserWarning: A worker stopped while some jobs were given to the executor. This can be caused by a too short worker timeout or by a memory leak.
+  warnings.warn(
