@@ -6,7 +6,7 @@ import os
 import runpy
 
 # Check if data file exists; generate data if not
-data_file = f"SFF/goe_sff_data_j={j},M={M},N={N}_ntraj={num_realizations}.dat"
+data_file = f"SFF/goe_sff_data,cd ..j={j},M={M},N={N}_ntraj={num_realizations}.dat"
 if not os.path.exists(data_file):
     print("Data file not found. Generating data...")
     runpy.run_path("calc_SFF_GOE.py",init_globals={'__name__': '__main__'})
