@@ -35,3 +35,7 @@ Thumbs.db
 # Ignore specific sensitive files
 config.yaml
 .env
+
+# Supercomputer 
+.err_node_48
+.out_node_48
