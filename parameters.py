@@ -12,11 +12,12 @@ w0 = 1.0
 # Coupling strengths
 g_arr = np.array([0.1,0.2,0.3,0.4, 0.5])
 g_arr = np.concatenate((g_arr,np.array([0.6,0.7,0.8,0.9,1.0])))
+# g_arr = [0.1, 1.0]
 
 # Pseudospin
-j = 1
+j = 20
 # Upper limit of bosonic fock states
-M = 2
+M = 80
 # local unfolding parameter
 v = 30
 
@@ -27,17 +28,18 @@ N = int((2*j+1)*M/2)
 # Inverse temperature for closed model
 beta = 0
 # Decay rate
-kappa = 1.0
+kappa = 0.1
 # Number of trajectories of MCWF method
 ntraj = 100
 # Values of beta for open model
-beta_arr = [0, 2, 5, 7, 10]
+beta_arr = [0, 10] # beta=0.1, 5 for kappa = 0.1
+beta_arr = [0.1, 5]
 
 # Number of random matrices to average over in GOE and GUE
-num_realizations = 1000  
+num_realizations = 1000
 
 # Number of Processes
-nproc = 40
+nproc = 8
 
 # Time list
 # Generate the intervals with the specified number of points
@@ -52,7 +54,7 @@ tlist = np.concatenate([t_vals_0_to_01, t_vals_01_to_1, t_vals_1_to_10, t_vals_1
 
 # Time list for open model with MCWF method
 StartTime = 0
-LateTime = 1
+LateTime = 100
 tlist_open = np.arange(StartTime, LateTime, 0.01)
 
 # gaussian unfolding parameter

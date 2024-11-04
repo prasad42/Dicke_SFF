@@ -12,7 +12,7 @@ if not os.path.exists(data_file):
     runpy.run_path("calc_SFF_GOE.py",init_globals={'__name__': '__main__'})
     print("Data generation complete.")
 
-data = np.loadtxt(f"SFF/goe_sff_data_j={j},M={M},N={N},ntraj={num_realizations}.dat")
+data = np.loadtxt(f"SFF/goe_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat")
 
 data = np.column_stack(data)
 t_vals = data[0]
