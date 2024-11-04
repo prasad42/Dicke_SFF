@@ -173,7 +173,7 @@ def integrate(g, tlist, kappa, beta, ntraj):
                 file.write("\n")
         return 0
     else:
-        raise Exception("File already exists.")
+        print("File already exists.")
   
 def CGS_fun(ev_list, evals_list, beta):
 
