@@ -166,13 +166,13 @@ def integrate(g, tlist, kappa, beta, ntraj):
         os.mkdir("SFF")
 
     if not os.path.exists(file_path):
-    with open(file_path, 'w') as file:
-        SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
-        for t_ind, t in enumerate(tlist):
-            file.write("{}".format(t))
-            SFF = SFF_list[:,t_ind][0]
-            file.write("\t{}".format(SFF))
-            file.write("\n")
+        with open(file_path, 'w') as file:
+            SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
+            for t_ind, t in enumerate(tlist):
+                file.write("{}".format(t))
+                SFF = SFF_list[:,t_ind][0]
+                file.write("\t{}".format(SFF))
+                file.write("\n")
     
     return 0
   
