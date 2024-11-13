@@ -4,8 +4,6 @@ evals/
 evals_par/
 plots/
 SFF/
-SFF_GOE/
-SFF_GUE/
 temp/
 
 # Ignore Python cache files
