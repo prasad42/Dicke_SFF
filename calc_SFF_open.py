@@ -159,10 +159,15 @@ def integrate(g, tlist, kappa, beta, ntraj):
     
     # Use Master equation solver to get list of psi for each time step
     psi0=CGS_fun(g, beta)
-
-    SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
     
-    with open(f"SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat", 'a') as file:
+    file_path = f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
+
+    if not os.path.exists("SFF"):
+        os.mkdir("SFF")
+
+    if not os.path.exists(file_path):
+    with open(file_path, 'w') as file:
+        SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
         for t_ind, t in enumerate(tlist):
             file.write("{}".format(t))
             SFF = SFF_list[:,t_ind][0]
