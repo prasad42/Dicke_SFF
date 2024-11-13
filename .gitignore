@@ -41,6 +41,6 @@ config.yaml
 .out_node_48
 
 # Images
-.png
+# .png
 .jpg
 .jpeg
