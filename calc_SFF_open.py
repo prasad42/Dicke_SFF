@@ -112,23 +112,21 @@ def my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj):
     '''
     
     # Dicke hamiltonian
-    H = qt.Qobj(np.array(DH(w, w0, g, M, j).full()))
-
-    # Measurement collapse operators(cavity decay)
+    H = DH(w, w0, g, M, j)
+    
+    # Measurement collapse operators(Bit flip)
     c_op = np.sqrt(kappa) * qt.tensor(qt.destroy(M),qt.qeye(int(2*j+1)))
-    c_op = qt.Qobj(np.array(c_op.full()))
-
+    
     # Expectation value
     e_op = psi0 * psi0.dag()
     
-    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj, options={"map":"loky"})
+    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj)
     
     SFF_list = result.expect
     
     SFF_list = np.abs(SFF_list) * np.abs(SFF_list)
     
     return SFF_list
-
 
 def integrate(g, tlist, kappa, beta, ntraj):
     
@@ -139,7 +137,17 @@ def integrate(g, tlist, kappa, beta, ntraj):
     parameters
     ----------
     
+    w : frequency of the bosonic field
+    
+    w0 : Energy difference in spin states
+    
     g : Coupling strength
+    
+    M : Upper limit of bosonic fock states
+    
+    j : Pseudospin
+    
+    psi0 : Initial state
     
     kappa : damping strength
     
@@ -149,33 +157,21 @@ def integrate(g, tlist, kappa, beta, ntraj):
         
     '''
     
-    print(f'j={j}, M={M}, g={g}, beta={beta}, kappa={kappa}')
-
     # Use Master equation solver to get list of psi for each time step
+    psi0=CGS_fun(g, beta)
+
+    SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
     
-    ev_list = np.load(f"ev/ev_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-    evals_list = np.load(f"evals/evals_g={g}_j={j}_M={M}.npy",allow_pickle=True)
-
-    # Initial state is the CGS state
-    psi0 = CGS_fun(ev_list, evals_list, beta)
-
-    #SFF_avg_list = SFF_list(psi0, rho_list, tlist)
-    file_path = f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
-    if not os.path.exists(file_path):
-        SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
-        if not os.path.exists('SFF'):
-            os.mkdir("SFF")
-        with open(file_path, 'w') as file:
-            for t_ind, t in enumerate(tlist):
-                file.write("{}".format(t))
-                SFF = SFF_list[:,t_ind][0]
-                file.write("\t{}".format(SFF))
-                file.write("\n")
-        return 0
-    else:
-        print("File already exists.")
+    with open(f"SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat", 'a') as file:
+        for t_ind, t in enumerate(tlist):
+            file.write("{}".format(t))
+            SFF = SFF_list[:,t_ind][0]
+            file.write("\t{}".format(SFF))
+            file.write("\n")
+    
+    return 0
   
-def CGS_fun(ev_list, evals_list, beta):
+def CGS_fun(g, beta):
 
     '''
     
@@ -192,25 +188,28 @@ def CGS_fun(ev_list, evals_list, beta):
     
     '''
     
+    # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
+    H = DH(w, w0, g, M, j)
+    ev_list = H.eigenstates()[1]
+    evals_list = H.eigenstates()[0]
+
     psi0 = np.exp(-beta/2*evals_list[0]) * ev_list[0]
     for i in range(len(ev_list[1:])):
         psi0 += np.exp(-beta/2*evals_list[i+1]) * ev_list[i+1]
-        
+    
     norm = 0
     for i in range(len(evals_list)):
         norm += np.exp(-beta*evals_list[i])
     norm = np.sqrt(norm)
-        
+    
     psi0 = psi0/norm
     
-    # psi0 = qt.Qobj(np.array(qt.Qobj(psi0).full()))
-
-    return qt.Qobj(psi0)
+    return psi0
 
 def main():
     for beta in beta_arr:
         for g in g_arr: 
-            integrate(g, tlist_open, kappa, beta, ntraj)
+            integrate(g, tlist_open, kappa_arr[0], beta, ntraj)
 
     return 0
 

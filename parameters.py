@@ -10,10 +10,10 @@ import numpy as np
 w  = 1.0
 w0 = 1.0
 # Coupling strengths
-g_arr = np.array([0.1,0.2,0.3,0.4, 0.5])
-g_arr = np.concatenate((g_arr,np.array([0.6,0.7,0.8,0.9,1.0])))
+g_arr = np.array([0.1,0.2,0.3,0.4,0.5])
+g_arr = np.concatenate((g_arr,np.array([0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3])))
 # g_arr = [0.1, 1.0]
-
+# g_arr = np.array([0.1,0.2,0.3,0.4, 0.5, 0.6, 0.7, 0.8])
 # Pseudospin
 j = 20
 # Upper limit of bosonic fock states
@@ -28,12 +28,15 @@ N = int((2*j+1)*M/2)
 # Inverse temperature for closed model
 beta = 0
 # Decay rate
-kappa = 0.1
+kappa_arr = [0.01, 0.1, 1.0, 10]
+kappa_arr = [1.0, 2.0]
+kappa_arr = [2.0]
+
 # Number of trajectories of MCWF method
 ntraj = 100
 # Values of beta for open model
-beta_arr = [0, 10] # beta=0.1, 5 for kappa = 0.1
-beta_arr = [0.1, 5]
+beta_arr = [0.1, 2, 5, 10]
+beta_arr = [10]
 
 # Number of random matrices to average over in GOE and GUE
 num_realizations = 1000
