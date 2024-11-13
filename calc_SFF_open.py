@@ -1,11 +1,8 @@
 import numpy as np
 import qutip as qt
-import time
-import multiprocessing as mp
-from tqdm import tqdm
-import os
+import matplotlib.pyplot as plt
 from parameters import *
-import runpy
+import os
 
 def DH(w, w0, g, M, j):
     
@@ -113,7 +110,7 @@ def my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj):
     
     # Dicke hamiltonian
     H = DH(w, w0, g, M, j)
-    
+        
     # Measurement collapse operators(Bit flip)
     c_op = np.sqrt(kappa) * qt.tensor(qt.destroy(M),qt.qeye(int(2*j+1)))
     
@@ -128,7 +125,8 @@ def my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj):
     
     return SFF_list
 
-def integrate(g, tlist, kappa, beta, ntraj):
+
+def integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj):
     
     '''
     
@@ -157,17 +155,15 @@ def integrate(g, tlist, kappa, beta, ntraj):
         
     '''
     
-    # Use Master equation solver to get list of psi for each time step
-    psi0=CGS_fun(g, beta)
-    
-    file_path = f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
+    folder_path = "temp"
+    if not os.path.exists(folder_path):
+        os.mkdir(folder_path)
 
-    if not os.path.exists("SFF"):
-        os.mkdir("SFF")
-
+    file_path = f"temp/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
     if not os.path.exists(file_path):
+        # Use Master equation solver to get list of psi for each time step
+        SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
         with open(file_path, 'w') as file:
-            SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)
             for t_ind, t in enumerate(tlist):
                 file.write("{}".format(t))
                 SFF = SFF_list[:,t_ind][0]
@@ -176,7 +172,7 @@ def integrate(g, tlist, kappa, beta, ntraj):
     
     return 0
   
-def CGS_fun(g, beta):
+def CGS_fun(ev_list, evals_list, beta):
 
     '''
     
@@ -193,11 +189,6 @@ def CGS_fun(g, beta):
     
     '''
     
-    # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
-    H = DH(w, w0, g, M, j)
-    ev_list = H.eigenstates()[1]
-    evals_list = H.eigenstates()[0]
-
     psi0 = np.exp(-beta/2*evals_list[0]) * ev_list[0]
     for i in range(len(ev_list[1:])):
         psi0 += np.exp(-beta/2*evals_list[i+1]) * ev_list[i+1]
@@ -211,12 +202,19 @@ def CGS_fun(g, beta):
     
     return psi0
 
-def main():
-    for beta in beta_arr:
-        for g in g_arr: 
-            integrate(g, tlist_open, kappa_arr[0], beta, ntraj)
+####################### Calculate #############################
 
-    return 0
-
-if __name__=='__main__':
-    main()
+for g in g_arr: 
+    # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
+    H = DH(w, w0, g, M, j)
+    ev_list = H.eigenstates()[1]
+    evals_list = H.eigenstates()[0]
+    for kappa in kappa_arr:
+        for beta in beta_arr:
+            
+            # Initial state is the CGS state
+            psi0 = CGS_fun(ev_list, evals_list, beta)
+            
+            print(f'j={j}, g={g}, kappa={kappa}, beta={beta}')
+            
+            integrate(w, w0, g, M, j, psi0, tlist_open, kappa, beta, ntraj)

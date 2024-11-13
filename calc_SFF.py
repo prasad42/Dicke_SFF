@@ -223,6 +223,7 @@ def main():
                 runpy.run_path("calc_evals_par.py")
             eval_list = np.load(f"evals_par/evals_g={np.round(g,2)}_j={j}_M={M}.npy")
             # Prepare arguments for parallelization
+            beta=0
             args_list.append([eval_list, tlist, beta, g, M, j, eta])
         # execute tasks and process results in order
         for result in pool.starmap(SFF_list, args_list, chunksize = 1):
