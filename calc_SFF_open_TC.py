@@ -30,7 +30,7 @@ def DH(w, w0, g, M, j):
     Jz = qt.tensor(qt.qeye(M), qt.jmat(j, 'z'))
     
     H0 = w * a.dag() * a + w0 * Jz
-    H1 = 1.0 / np.sqrt(2*j) * (a + a.dag()) * (Jp + Jm)
+    H1 = 1.0 / np.sqrt(2*j) * (a*Jp + a.dag()*Jm)
     H = H0 + g * H1
     
     return H
@@ -159,7 +159,7 @@ def integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj):
     if not os.path.exists(folder_path):
         os.mkdir(folder_path)
 
-    file_path = f"SFF/SFFvsTime,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
+    file_path = f"SFF/SFFvsTime_TC,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
     if not os.path.exists(file_path):
         # Use Master equation solver to get list of psi for each time step
         SFF_list = my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj)

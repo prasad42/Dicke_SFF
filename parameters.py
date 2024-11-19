@@ -25,11 +25,13 @@ N_dim = (2*j+1)*M
 N = int((2*j+1)*M/2)
 # Decay rate
 kappa_arr = [0.01, 0.1, 1.0, 10]
+kappa_arr = [1.0]
 
 # Number of trajectories of MCWF method
 ntraj = 100
 # Inverse temperature values
 beta_arr = [0.1, 2, 5, 10]
+beta_arr = [10]
 
 # Number of random matrices to average over in GOE and GUE
 num_realizations = 1000
