@@ -117,7 +117,7 @@ def my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj):
     # Expectation value
     e_op = psi0 * psi0.dag()
     
-    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj)
+    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"loky", "num_cpus":40})
     
     SFF_list = result.expect
     
@@ -209,12 +209,9 @@ for g in g_arr:
     H = DH(w, w0, g, M, j)
     ev_list = H.eigenstates()[1]
     evals_list = H.eigenstates()[0]
-    for kappa in kappa_arr:
-        for beta in beta_arr:
-            
-            # Initial state is the CGS state
-            psi0 = CGS_fun(ev_list, evals_list, beta)
-            
+    # Initial state is the CGS state
+    for beta in beta_arr:
+        psi0 = CGS_fun(ev_list, evals_list, beta)
+        for kappa in kappa_arr:
             print(f'j={j}, g={g}, kappa={kappa}, beta={beta}')
-            
             integrate(w, w0, g, M, j, psi0, tlist_open, kappa, beta, ntraj)

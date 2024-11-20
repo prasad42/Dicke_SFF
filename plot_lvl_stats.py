@@ -72,7 +72,7 @@ def unf_lvl(v, eval_list):
     
     return lvl_unf
 
-# Plot Level Statistics
+# Calculate Level Statistics
 dataList = []
 for g in g_arr:
     print(f'g={g}')
@@ -80,6 +80,14 @@ for g in g_arr:
     if not os.path.exists(f"evals_par/evals_g={g}_j={j}_M={M}.npy"):
         runpy.run_path("calc_evals_par.py",init_globals={'__name__': '__main__'})
     evals = np.load(f"evals_par/evals_g={g}_j={j}_M={M}.npy")
+
+    # Select middle of the spectrum
+    # eval_list_cut = []
+    # for i in range(len(evals)):
+    #     E = evals[i]
+    #     if E/(2*j)>0.4 and E/(2*j)<4:
+    #         eval_list_cut.append(E)
+
     # Unfold the energies
     evals_unfl = unf_lvl(v, evals)
     lvl_sp_arr = []
@@ -115,5 +123,5 @@ for g_ind, lvl_sp in enumerate(dataList):
 # Show the plot
 if not os.path.exists("plots"):
     os.mkdir("plots")
-plt.savefig('plots/Level_Statistics')
+# plt.savefig('plots/Level_Statistics')
 plt.show()
