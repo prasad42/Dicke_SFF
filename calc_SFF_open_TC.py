@@ -117,7 +117,7 @@ def my_mcsolve(w, w0, g, M, j, psi0, tlist, kappa, ntraj):
     # Expectation value
     e_op = psi0 * psi0.dag()
     
-    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj)
+    result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"loky", "num_cpu":40})
     
     SFF_list = result.expect
     
