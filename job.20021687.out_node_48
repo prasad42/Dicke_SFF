@@ -1,0 +1,73 @@
+==========================================
+SLURM_CLUSTER_NAME = paramananta
+SLURM_ARRAY_JOB_ID = 
+SLURM_ARRAY_TASK_ID = 
+SLURM_ARRAY_TASK_COUNT = 
+SLURM_ARRAY_TASK_MAX = 
+SLURM_ARRAY_TASK_MIN = 
+SLURM_JOB_ACCOUNT = iitgn
+SLURM_JOB_ID = 20021687
+SLURM_JOB_NAME = 2siteBH
+SLURM_JOB_NODELIST = hm[020-023]
+SLURM_JOB_USER = prasad.pawar
+SLURM_JOB_UID = 40139
+SLURM_JOB_PARTITION = highmemory
+SLURM_TASK_PID = 46819
+SLURM_SUBMIT_DIR = /home/prasad.pawar/Projects/Dicke_SFF
+SLURM_CPUS_ON_NODE = 48
+SLURM_NTASKS = 192
+SLURM_TASK_PID = 46819
+==========================================
+j=20, g=0.1, kappa=1.0, beta=10
+10.0%. Run time: 130.34s. Est. time left: 00:00:19:33
+20.0%. Run time: 131.51s. Est. time left: 00:00:08:46
+30.0%. Run time: 132.55s. Est. time left: 00:00:05:09
+40.0%. Run time: 136.92s. Est. time left: 00:00:03:25
+50.0%. Run time: 256.40s. Est. time left: 00:00:04:16
+60.0%. Run time: 258.43s. Est. time left: 00:00:02:52
+70.0%. Run time: 259.42s. Est. time left: 00:00:01:51
+80.0%. Run time: 268.18s. Est. time left: 00:00:01:07
+90.0%. Run time: 381.21s. Est. time left: 00:00:00:42
+100.0%. Run time: 386.82s. Est. time left: 00:00:00:00
+Total run time: 387.11s
+j=20, g=0.2, kappa=1.0, beta=10
+10.0%. Run time: 130.88s. Est. time left: 00:00:19:37
+20.0%. Run time: 132.07s. Est. time left: 00:00:08:48
+30.0%. Run time: 133.29s. Est. time left: 00:00:05:11
+40.0%. Run time: 137.77s. Est. time left: 00:00:03:26
+50.0%. Run time: 256.71s. Est. time left: 00:00:04:16
+60.0%. Run time: 258.07s. Est. time left: 00:00:02:52
+70.0%. Run time: 259.29s. Est. time left: 00:00:01:51
+80.0%. Run time: 273.31s. Est. time left: 00:00:01:08
+90.0%. Run time: 378.55s. Est. time left: 00:00:00:42
+100.0%. Run time: 383.84s. Est. time left: 00:00:00:00
+Total run time: 384.13s
+j=20, g=0.3, kappa=1.0, beta=10
+10.0%. Run time: 130.91s. Est. time left: 00:00:19:38
+20.0%. Run time: 132.10s. Est. time left: 00:00:08:48
+30.0%. Run time: 133.29s. Est. time left: 00:00:05:11
+40.0%. Run time: 137.12s. Est. time left: 00:00:03:25
+50.0%. Run time: 257.43s. Est. time left: 00:00:04:17
+60.0%. Run time: 258.70s. Est. time left: 00:00:02:52
+70.0%. Run time: 259.51s. Est. time left: 00:00:01:51
+80.0%. Run time: 267.71s. Est. time left: 00:00:01:06
+90.0%. Run time: 381.04s. Est. time left: 00:00:00:42
+100.0%. Run time: 385.69s. Est. time left: 00:00:00:00
+Total run time: 385.98s
+j=20, g=0.4, kappa=1.0, beta=10
+10.0%. Run time: 131.16s. Est. time left: 00:00:19:40
+20.0%. Run time: 132.38s. Est. time left: 00:00:08:49
+30.0%. Run time: 133.55s. Est. time left: 00:00:05:11
+40.0%. Run time: 134.78s. Est. time left: 00:00:03:22
+50.0%. Run time: 257.90s. Est. time left: 00:00:04:17
+60.0%. Run time: 259.19s. Est. time left: 00:00:02:52
+70.0%. Run time: 260.01s. Est. time left: 00:00:01:51
+80.0%. Run time: 264.99s. Est. time left: 00:00:01:06
+90.0%. Run time: 382.87s. Est. time left: 00:00:00:42
+100.0%. Run time: 389.14s. Est. time left: 00:00:00:00
+Total run time: 389.44s
+j=20, g=0.5, kappa=1.0, beta=10
+10.0%. Run time: 132.01s. Est. time left: 00:00:19:48
+20.0%. Run time: 133.01s. Est. time left: 00:00:08:52
+30.0%. Run time: 134.17s. Est. time left: 00:00:05:13
+40.0%. Run time: 137.78s. Est. time left: 00:00:03:26
