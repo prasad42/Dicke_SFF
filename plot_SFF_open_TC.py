@@ -5,7 +5,6 @@ from tqdm import tqdm
 from parameters import *
 import os
 import calc_SFF_open
-import calc_SFF_GOE
 import math 
 
 if __name__=='__main__':
@@ -27,16 +26,16 @@ if __name__=='__main__':
             dataList1.append(data)
         dataList.append(dataList1)
 
-    plt.figure(figsize=(8,7))
+    plt.figure(figsize=(6,5))
     for beta_ind, beta in enumerate(dataList):
-        plt.subplot(math.ceil(len(beta_arr)/2),2,beta_ind+1)
-        plt.suptitle(r"$\gamma$"+f"={kappa}")
+        #plt.subplot(math.ceil(len(beta_arr)/2),2,beta_ind+1)
+        #plt.suptitle(r"$\gamma$"+f"={kappa}")
         for g_ind, data in enumerate(dataList[beta_ind]):
             data = np.column_stack(data)
-            plt.title(r"$\beta$" + f"={beta_arr[beta_ind]}")
+            #plt.title(r"$\beta$" + f"={beta_arr[beta_ind]}")
             plt.xscale('log')
             plt.yscale('log')
-            # plt.xlim(1e-2,1e3)
+            plt.xlim(1e-2,1e2)
             # plt.ylim(1e-11,3)
             plt.xlabel("Time")
             plt.ylabel("SFF")
