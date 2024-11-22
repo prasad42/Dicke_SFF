@@ -21,7 +21,7 @@ if __name__=='__main__':
             if not os.path.exists(file_path):
                 print("Data file not found. Generating data...")
                 print(file_path)
-                calc_SFF_open.integrate(g, tlist, kappa, beta, ntraj)
+                calc_SFF_open.main()
                 print("Data generation complete.")
             data = np.loadtxt(file_path)
             dataList1.append(data)
@@ -41,18 +41,12 @@ if __name__=='__main__':
             plt.xlabel("Time")
             plt.ylabel("SFF")
             plt.plot(data[0],data[1],label=f"g={g_arr[g_ind]}")
-            # Plot GOE
-            if not os.path.exists(f"SFF/goe_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat"):
-                calc_SFF_GOE.main()
-            data1 = np.loadtxt(f"SFF/goe_sff_data,j={j},M={M},N={N},ntraj={num_realizations}.dat",dtype=complex)
-            data1 = np.column_stack(data1)
-            plt.plot(data1[0],data1[1],'--k',label=f"GOE")
             plt.tight_layout()
         plt.grid()
         if not os.path.exists("plots"):
             os.mkdir("plots")            
     plt.legend()
-    plt.savefig(f"plots/SFF_mcsolve_vary_g_for_different_beta_kappa={kappa}.png")
+    plt.savefig(f"plots/SFF_mcsolve_vary_g_for_different_beta,j={j},M={M},kappa={kappa}.png")
     plt.show()
 
     ##################################### Varying g for different kappas for a given betas #####################################
