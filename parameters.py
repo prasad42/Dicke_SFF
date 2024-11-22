@@ -13,9 +13,9 @@ w0 = 1.0
 g_arr = np.array([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
 # g_arr = np.concatenate((g_arr,np.array([1.1,1.2,1.3])))
 # Pseudospin
-j = 2
+j = 20
 # Upper limit of bosonic fock states
-M = 8
+M = 50
 M_arr = [30, 40, 50, 60, 70, 80]
 # local unfolding parameter
 v = 30
