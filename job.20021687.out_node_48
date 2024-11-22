@@ -71,3 +71,70 @@ j=20, g=0.5, kappa=1.0, beta=10
 20.0%. Run time: 133.01s. Est. time left: 00:00:08:52
 30.0%. Run time: 134.17s. Est. time left: 00:00:05:13
 40.0%. Run time: 137.78s. Est. time left: 00:00:03:26
+50.0%. Run time: 260.59s. Est. time left: 00:00:04:20
+60.0%. Run time: 261.91s. Est. time left: 00:00:02:54
+70.0%. Run time: 263.56s. Est. time left: 00:00:01:52
+80.0%. Run time: 277.20s. Est. time left: 00:00:01:09
+90.0%. Run time: 384.88s. Est. time left: 00:00:00:42
+100.0%. Run time: 391.68s. Est. time left: 00:00:00:00
+Total run time: 391.98s
+j=20, g=0.6, kappa=1.0, beta=10
+10.0%. Run time: 133.17s. Est. time left: 00:00:19:58
+20.0%. Run time: 134.29s. Est. time left: 00:00:08:57
+30.0%. Run time: 135.44s. Est. time left: 00:00:05:16
+40.0%. Run time: 138.45s. Est. time left: 00:00:03:27
+50.0%. Run time: 261.85s. Est. time left: 00:00:04:21
+60.0%. Run time: 263.50s. Est. time left: 00:00:02:55
+70.0%. Run time: 264.76s. Est. time left: 00:00:01:53
+80.0%. Run time: 272.10s. Est. time left: 00:00:01:08
+90.0%. Run time: 387.28s. Est. time left: 00:00:00:43
+100.0%. Run time: 394.58s. Est. time left: 00:00:00:00
+Total run time: 394.90s
+j=20, g=0.7, kappa=1.0, beta=10
+10.0%. Run time: 135.40s. Est. time left: 00:00:20:18
+20.0%. Run time: 136.58s. Est. time left: 00:00:09:06
+30.0%. Run time: 137.81s. Est. time left: 00:00:05:21
+40.0%. Run time: 141.54s. Est. time left: 00:00:03:32
+50.0%. Run time: 266.04s. Est. time left: 00:00:04:26
+60.0%. Run time: 267.40s. Est. time left: 00:00:02:58
+70.0%. Run time: 268.53s. Est. time left: 00:00:01:55
+80.0%. Run time: 277.05s. Est. time left: 00:00:01:09
+90.0%. Run time: 393.32s. Est. time left: 00:00:00:43
+100.0%. Run time: 398.87s. Est. time left: 00:00:00:00
+Total run time: 399.15s
+j=20, g=0.8, kappa=1.0, beta=10
+10.0%. Run time: 137.89s. Est. time left: 00:00:20:41
+20.0%. Run time: 139.11s. Est. time left: 00:00:09:16
+30.0%. Run time: 140.32s. Est. time left: 00:00:05:27
+40.0%. Run time: 141.43s. Est. time left: 00:00:03:32
+50.0%. Run time: 271.11s. Est. time left: 00:00:04:31
+60.0%. Run time: 272.55s. Est. time left: 00:00:03:01
+70.0%. Run time: 273.48s. Est. time left: 00:00:01:57
+80.0%. Run time: 277.79s. Est. time left: 00:00:01:09
+90.0%. Run time: 401.80s. Est. time left: 00:00:00:44
+100.0%. Run time: 404.66s. Est. time left: 00:00:00:00
+Total run time: 404.96s
+j=20, g=0.9, kappa=1.0, beta=10
+10.0%. Run time: 141.71s. Est. time left: 00:00:21:15
+20.0%. Run time: 142.89s. Est. time left: 00:00:09:31
+30.0%. Run time: 144.05s. Est. time left: 00:00:05:36
+40.0%. Run time: 147.61s. Est. time left: 00:00:03:41
+50.0%. Run time: 278.42s. Est. time left: 00:00:04:38
+60.0%. Run time: 280.71s. Est. time left: 00:00:03:07
+70.0%. Run time: 282.36s. Est. time left: 00:00:02:01
+80.0%. Run time: 289.13s. Est. time left: 00:00:01:12
+90.0%. Run time: 411.35s. Est. time left: 00:00:00:45
+100.0%. Run time: 414.29s. Est. time left: 00:00:00:00
+Total run time: 414.57s
+j=20, g=1.0, kappa=1.0, beta=10
+10.0%. Run time: 144.47s. Est. time left: 00:00:21:40
+20.0%. Run time: 145.65s. Est. time left: 00:00:09:42
+30.0%. Run time: 146.87s. Est. time left: 00:00:05:42
+40.0%. Run time: 148.55s. Est. time left: 00:00:03:42
+50.0%. Run time: 283.70s. Est. time left: 00:00:04:43
+60.0%. Run time: 285.38s. Est. time left: 00:00:03:10
+70.0%. Run time: 286.25s. Est. time left: 00:00:02:02
+80.0%. Run time: 295.33s. Est. time left: 00:00:01:13
+90.0%. Run time: 420.96s. Est. time left: 00:00:00:46
+100.0%. Run time: 426.15s. Est. time left: 00:00:00:00
+Total run time: 426.44s
