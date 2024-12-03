@@ -12,7 +12,7 @@ import calc_SFF
 g_arr_reg = [0.1, 0.2, 0.3, 0.4, 0.5]
 # Chaotic Phase
 g_arr_ch = [0.6, 0.7, 0.8, 0.9, 1.0]
-
+beta = beta_arr[0]
 
 if __name__ == '__main__':
     # Regular Phase

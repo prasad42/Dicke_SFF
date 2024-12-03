@@ -13,9 +13,9 @@ w0 = 1.0
 g_arr = np.array([0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0])
 # g_arr = np.concatenate((g_arr,np.array([1.1,1.2,1.3])))
 # Pseudospin
-j = 20
+j = 15
 # Upper limit of bosonic fock states
-M = 40
+M = 80
 M_arr = [30, 40, 50, 60, 70, 80]
 # local unfolding parameter
 v = 30
@@ -32,7 +32,7 @@ kappa_arr = [1.0]
 ntraj = 100
 # Inverse temperature values
 beta_arr = [0.1, 2, 5, 10]
-beta_arr = [10]
+beta_arr = [0]
 
 # Number of random matrices to average over in GOE and GUE
 num_realizations = 1000
