@@ -5,7 +5,7 @@ evals_par/
 plots/
 SFF/
 temp/
-evals_par_Lop/
+# evals_par_Lop/
 
 # Ignore Python cache files
 __pycache__/
