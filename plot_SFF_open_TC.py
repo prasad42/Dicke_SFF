@@ -15,12 +15,12 @@ if __name__=='__main__':
     dataList = []
     for beta in beta_arr:
         dataList1 = []
-        for g in g_arr:
+        for g in g_arr[0:7]:
             file_path = f"SFF/SFFvsTime_TC,j={j},M={M},g={g},beta={beta},kappa={kappa},ntraj={ntraj}.dat"
             if not os.path.exists(file_path):
                 print("Data file not found. Generating data...")
                 print(file_path)
-                calc_SFF_open.integrate(g, tlist, kappa, beta, ntraj)
+                calc_SFF_open.main()
                 print("Data generation complete.")
             data = np.loadtxt(file_path)
             dataList1.append(data)

@@ -207,14 +207,13 @@ def main():
         # Find eigenvalues and eigenvectors of the Dicke Hamiltonian
         H = DH(w, w0, g, M, j)
         ev_list = H.eigenstates()[1]
-        # evals_list = H.eigenstates()[0]
+        evals_list = H.eigenstates()[0]
         # Initial state is the CGS state
         for beta in beta_arr:
-            psi0 = ev_list[0].unit()
-            # psi0 = CGS_fun(ev_list, evals_list, beta)
+            psi0 = CGS_fun(ev_list, evals_list, beta)
             for kappa in kappa_arr:
                 print(f'j={j}, g={g}, kappa={kappa}, beta={beta}')
-                integrate(w, w0, g, M, j, psi0, tlist_open, kappa, beta, ntraj)
+                integrate(w, w0, g, M, j, psi0, tlist, kappa, beta, ntraj)
 
 ####################### Calculate #############################
 if __name__=='__main__':
