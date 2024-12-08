@@ -1,12 +1,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import multiprocessing as mp
 from parameters import *
 from dicke_sff_lib import *
-import warnings
-warnings.filterwarnings('ignore')
 
 def main():
-    plt.figure(figsize=(9,7))
+    plt.figure(figsize=(9*len(g_arr)/9,7*len(g_arr)/7))
     for g_ind, g in enumerate(g_arr):
         eigval_sp = eigval_sp_fun(ω, ω0, j, M, g, v)
         # Reference plots
@@ -14,7 +13,7 @@ def main():
         y_gauss = np.pi/2 * x_val * np.exp(-np.pi*x_val**2/4)
         y_poi = np.exp(-x_val)
         # Create a histogram
-        plt.subplot(4,3,g_ind+1)
+        plt.subplot(int(len(g_arr)/3),3,g_ind+1)
         plt.title(f'g={g}')
         plt.plot(x_val, y_gauss, linestyle = '--', label = 'Gaussian', linewidth = 1)
         plt.plot(x_val, y_poi, label = 'Poisson', linewidth = 1)
@@ -27,7 +26,7 @@ def main():
         plt.tight_layout()
     if not os.path.exists("plots"):
         os.mkdir("plots")
-    plt.savefig(f'plots/Dicke_NNSD_j={j}_M={M}')
+    plt.savefig(f'plots/Dicke_NNSD_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={gc}.jpg')
     plt.show()
 
 if __name__=="__main__":
