@@ -6,7 +6,7 @@ from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
 
-def DH_fun(ω, ω0, j, M, g):
+def DH_par_fun(ω, ω0, j, M, g):
     '''
     Even parity Dicke Hamiltonian for the following parameters.
     Args:
@@ -24,11 +24,32 @@ def DH_fun(ω, ω0, j, M, g):
     H1 = 1.0 / np.sqrt(2*j) * (a + a.dag()) * (Jp + Jm)
     H = H0 + g * H1
     H_even = H[::2,::2]
+    
     return H_even
+
+def DH_fun(ω, ω0, j, M, g):
+    '''
+    Dicke Hamiltonian for the following parameters.
+    Args:
+    - ω : frequency of the bosonic field
+    - ω0 : Energy difference in spin states
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    '''
+    a  = qt.tensor(qt.destroy(M), qt.qeye(int(2*j+1)))
+    Jp = qt.tensor(qt.qeye(M), qt.jmat(j, '+'))
+    Jm = qt.tensor(qt.qeye(M), qt.jmat(j, '-'))
+    Jz = qt.tensor(qt.qeye(M), qt.jmat(j, 'z'))
+    H0 = ω * a.dag() * a + ω0 * Jz
+    H1 = 1.0 / np.sqrt(2*j) * (a + a.dag()) * (Jp + Jm)
+    H = H0 + g * H1
+    
+    return H
 
 def dicke_eigvals_fun(ω, ω0, j, M, g):
     '''
-    Eigenvalues of the Hamiltonain in an npy file
+    Eigenvalues of the even parity Hamiltonain in an npy file
     Args:
     - ω : frequency of the bosonic field
     - ω0 : Energy difference in spin states
@@ -42,8 +63,8 @@ def dicke_eigvals_fun(ω, ω0, j, M, g):
     file_path = f"evals_par/evals_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_g={g}.npy"
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
-        H = DH_fun(ω, ω0, j, M, g)
-        eigvals = sl.eigvals(H)
+        H = DH_par_fun(ω, ω0, j, M, g)
+        eigvals = sl.eigvalsh(H)
         eigvals = np.sort(eigvals)
         np.save(file_path,eigvals)
     else:
@@ -223,7 +244,7 @@ def sff_goe_list_fun(j, M, β, tlist, ntraj):
     N  = int((2*j+1)*M/2)
     if not os.path.exists("sff"):
         os.mkdir("sff")
-    file_path = f"sff/sff_goe_j={j}_M={M}_N={N}_β={β}.npy"
+    file_path = f"sff/sff_goe_j={j}_M={M}_N={N}_β={β}_ntraj={ntraj}.npy"
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
         sff_list = np.zeros_like(tlist, dtype=np.float64)
@@ -238,6 +259,62 @@ def sff_goe_list_fun(j, M, β, tlist, ntraj):
     else:
         print(f"{file_path} already exists.")
 
+    sff_list = np.load(file_path)
+
+    return sff_list
+
+def psi0_fun(ω, ω0, j, M, g, β):
+    '''
+    Returns CGS function
+    Args:
+    - ω : frequency of the bosonic field
+    - ω0 : Energy difference in spin states
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    - β : Inverse temperature
+    '''
+    π = np.pi
+    H = DH_fun(ω, ω0, j, M, g)
+    eigvals, eigvecs = H.eigenstates()
+    θ_list = np.random.uniform(0,2*π,len(eigvals)) # Parameter to randomise initial state
+    psi0 = np.sum(np.exp(-β/2*eigvals+1j*θ_list) * eigvecs)
+    psi0 = psi0.unit()
+    
+    return psi0
+
+def sff_open_list_fun(ω, ω0, j, M, g, β, γ, tlist, ntraj):
+    '''
+    Returns open sff
+    Args:
+    - ω : frequency of the bosonic field
+    - ω0 : Energy difference in spin states
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    - β : Inverse temperature
+    - γ : decay rate of the cavity
+    - tlist : time list
+    - ntraj : number of trejectories
+    '''
+    if not os.path.exists("sff"):
+        os.mkdir(f"sff")
+    file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_γ={γ}_g={g}_ntraj={ntraj}.npy"
+    if not os.path.exists(file_path):
+        print(f"{file_path} does not exist, generating data.")
+        H = DH_fun(ω, ω0, j, M, g)
+        c_op = np.sqrt(γ) * qt.tensor(qt.destroy(M),qt.qeye(int(2*j+1)))
+        sff_list = []
+        for _ in tqdm(range(ntraj)):
+            psi0 = psi0_fun(ω, ω0, j, M, g, β)
+            e_op = psi0 * psi0.dag()
+            result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"loky", "num_cpus":4})
+            sff = np.abs(result.expect)**2
+            sff_list.append(sff)
+        sff_list = np.average(np.array(sff_list)) 
+        np.save(file_path,sff_list)
+    else:
+        print(f"{file_path} already exists.")
     sff_list = np.load(file_path)
 
     return sff_list

@@ -1,16 +1,14 @@
 import matplotlib.pyplot as plt
-import numpy as np
-from tqdm import tqdm
 from dicke_sff_lib import *
 from parameters import *
 
 def main():
     sff_goe_list = sff_goe_list_fun(j, M, β, tlist, ntraj)
-    plt.figure(figsize=(int(len(g_arr))/2,int(len(g_arr))))
+    plt.figure(figsize=(int(len(g_arr)),int(len(g_arr))))
     for g_ind, g in enumerate(g_arr):
         sff_list = sff_list_fun(ω, ω0, j, M, g, β, tlist)
         sff_rl = sff_rl_fun(ω, ω0, j, M, g, β, tlist)
-        plt.subplot(8,2,g_ind+1)
+        plt.subplot(4,3,g_ind+1)
         plt.title(f"g={g}")
         plt.xscale('log'); plt.yscale('log')
         plt.xlabel("Time"); plt.ylabel("sff")
@@ -31,4 +29,4 @@ def main():
     plt.show()
 
 if __name__ == '__main__':
-    main()    
+    main()

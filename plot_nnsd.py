@@ -13,11 +13,11 @@ def main():
         y_gauss = np.pi/2 * x_val * np.exp(-np.pi*x_val**2/4)
         y_poi = np.exp(-x_val)
         # Create a histogram
-        plt.subplot(int(len(g_arr)/3),3,g_ind+1)
+        plt.subplot(int(len(g_arr)/3)+1,3,g_ind+1)
         plt.title(f'g={g}')
         plt.plot(x_val, y_gauss, linestyle = '--', label = 'Gaussian', linewidth = 1)
         plt.plot(x_val, y_poi, label = 'Poisson', linewidth = 1)
-        hist_values,bin_edges, _ = plt.hist(eigval_sp, bins=60, histtype= 'step', density=True)
+        hist_values,bin_edges, _ = plt.hist(eigval_sp, bins=30, histtype= 'step', density=True)
         plt.xlabel('s')
         plt.ylabel('P(s)')
         plt.xlim([0,4])

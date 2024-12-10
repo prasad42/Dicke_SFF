@@ -6,6 +6,7 @@ plots/
 SFF/
 temp/
 evals_par_Lop/
+psi0/
 
 # Ignore Python cache files
 __pycache__/
