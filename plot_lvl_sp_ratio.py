@@ -13,6 +13,7 @@ def main():
     plt.plot(g_arr,r_avg_arr,'-o',label = f"M={M}")
     plt.axhline(y=0.386,linestyle='--',color='k',label=r'$\left\langle r\right\rangle_{\text{Poi}}$')
     plt.axhline(y=0.536,linestyle='-',color='r',label=r'$\left\langle r\right\rangle_{\text{GOE}}$')
+    
     plt.xlabel('g')
     plt.ylabel(r'$\left\langle r\right\rangle$')
     plt.legend()

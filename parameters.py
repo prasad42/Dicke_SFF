@@ -7,11 +7,22 @@ import numpy as np
 
 # SET UP THE CALCULATION
 
-ω  = 1.0; ω0 = 1.0; j = 1; M = 2; v = 30; γ=1.0; β=0; ntraj=100; gc={np.round((np.sqrt(ω*ω0)/2),2)}
-g_arr = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+ω  = 1.0; ω0 = 1.0; j = 20; M = 80; v = 0; γ=1.0; β=0; gc={np.round((np.sqrt(ω*ω0)/2),2)}
+g_arr = [0.001, 0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+g_arr = [0.001, 0.2, 0.5, 1.0]
+k = 1
+
+# For Level Spacing Ratio
+j_arr = [10, 15, 20]
 
 # Number of random matrices to average over in GOE and GUE
-num_realizations = 1000
+ntraj = 100
+
+# Filter the eigenvalue as per the following parameter
+α = 0.7 # Use only this much of the eigenvalues in the center of the spectrum (discard the edge spectrum)
+
+#
+N = int(α*(2*j+1)*M/2)
 
 # Number of Processes
 nproc = 8
