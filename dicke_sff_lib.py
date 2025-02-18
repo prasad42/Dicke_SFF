@@ -54,6 +54,41 @@ def dicke_eigvals_fun(ω, ω0, j, M, g):
 
     return eigvals
 
+def dos_fun(eigvals):
+
+    dos = []
+    for i in range(len(eigvals)-1):
+        dos_val = 1/(eigvals[i+1]-eigvals[i])
+        dos.append(dos_val)
+
+    return np.array(dos)
+
+def eigval_sp_fun(eigvals, α, v):
+
+    '''
+    The function returns the spacings between the locally unfolded eigenvalues
+    Args:
+    - ω : frequency of the bosonic field
+    - ω0 : Energy difference in spin states
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    - v : Local unfolding parameter
+    '''
+    
+    eig_d = len(eigvals)
+    start_idx = int((1-α)/2*eig_d)
+    end_idx = int((1+α)/2*eig_d)
+    eigvals = eigvals[start_idx:end_idx]
+    eigvals = unf_eigval_fun(v, eigvals)
+    eigvals_sp = []
+    for i in range(len(eigvals)-1):
+        lvl_sp = eigvals[i+1]-eigvals[i]
+        eigvals_sp.append(lvl_sp)
+    eigvals_sp = np.sort(eigvals_sp)
+
+    return eigvals_sp
+
 def loc_den(v, i, eigvals):
     '''
     This function gives local density of states.
@@ -98,10 +133,35 @@ def unf_eigval_fun(v, eigvals):
     
     return lvl_unf
 
-def eigval_sp_fun(ω, ω0, j, M, g, α, v):
+def unf_eigval_poly_fun(deg, eigvals):
+    """
+    Unfolds the eigenvalue spectrum polynomially and returns the unfolded spectrum.
+    
+    Args:
+    - deg (int): Degree of the polynomial fit.
+    - eigvals (array-like): Sorted list of eigenvalues.
+
+    Returns:
+    - unfolded (np.ndarray): Unfolded spectrum.
+    """
+    eigvals = np.sort(eigvals)  # Ensure eigenvalues are sorted
+    
+    # Create the staircase function (indices as rank of eigenvalues)
+    indices = np.arange(1, len(eigvals) + 1)
+
+    # Fit a polynomial of degree `deg` to the staircase function
+    coeffs = np.polyfit(eigvals, indices, deg)
+    poly = np.poly1d(coeffs)
+
+    # Compute unfolded eigenvalues
+    unfolded = poly(eigvals)
+
+    return unfolded
+
+def eigval_sp_poly_fun(eigvals, α, deg):
 
     '''
-    The function returns the spacings between the unfolded eigenvalues
+    The function returns the spacings between the locally unfolded eigenvalues
     Args:
     - ω : frequency of the bosonic field
     - ω0 : Energy difference in spin states
@@ -110,17 +170,13 @@ def eigval_sp_fun(ω, ω0, j, M, g, α, v):
     - g : Coupling strength
     - v : Local unfolding parameter
     '''
-    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g)  
     eig_d = len(eigvals)
     start_idx = int((1-α)/2*eig_d)
     end_idx = int((1+α)/2*eig_d)
     eigvals = eigvals[start_idx:end_idx]
-    eigvals = unf_eigval_fun(v, eigvals)
-    eigvals_sp = []
-    for i in range(len(eigvals)-1):
-        lvl_sp = eigvals[i+1]-eigvals[i]
-        eigvals_sp.append(lvl_sp)
-    eigvals_sp = np.sort(eigvals_sp)
+    unfolded = unf_eigval_poly_fun(deg, eigvals)
+    # Compute the nearest-neighbor spacings from the unfolded spectrum
+    eigvals_sp = np.diff(unfolded)
 
     return eigvals_sp
 
@@ -241,7 +297,7 @@ def rk_avg_poi_fun(N, ntraj, k):
 
     return r_avg, r
 
-def sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v):
+def sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc):
     '''
     Calculates the sff with energies of the Dicke Hamiltonian at each time step for a single trajectory.
     Args:
@@ -257,11 +313,16 @@ def sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v):
     start_idx = int((1-α)/2*eig_d)
     end_idx = int((1+α)/2*eig_d)
     eigvals = eigvals[start_idx:end_idx]
-    if v>0:
+    if unfl_proc=="local":
         eigvals = unf_eigval_fun(v, eigvals)
-    else:
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}.npy"
+    elif unfl_proc == "poly":
+        eigvals = unf_eigval_poly_fun(deg, eigvals)
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_deg={deg}.npy"
+    elif unfl_proc == None:
         eigvals = eigvals
-    file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}.npy"
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}.npy"
+    
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
         sff_list = []
@@ -300,20 +361,12 @@ def sff_rl_fun(tlist, sff_list, win = 50):
 
     return sff_rl
 
-def dos(eigvals):
-    
-    dos = np.zeros(len(eigvals)-1)
-    for i in range(len(eigvals)-1):
-        dos[i] = 1/(eigvals[i+1]-eigvals[i])
-    
-    return dos
-
 def generate_goe_matrix(N):
     """
     Generate an NxN Gaussian Orthogonal Ensemble (GOE) matrix.
     """
     A = np.random.normal(0, 1, size=(N, N))
-    A = (A + A.T)/np.sqrt(2)
+    A = (A + A.T)/2
     return A
 
 def calc_goe_eigvals(N, traj_ind):
@@ -327,7 +380,7 @@ def calc_goe_eigvals(N, traj_ind):
         eigvals = np.load(file_path)
     return eigvals
 
-def sff_goe_list_fun(N, β, tlist, v, ntraj):
+def sff_goe_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj):
     """
     Compute the Spectral Form Factor (sff) for GOE matrices of size N,
     averaged over `ntraj` random GOE matrices.
@@ -344,14 +397,25 @@ def sff_goe_list_fun(N, β, tlist, v, ntraj):
     - sff_list: Array of sff values for each T.
     """
     os.makedirs("sff",exist_ok=True)
-    file_path = f"sff/sff_goe_N={N}_β={β}_ntraj={ntraj}_v={v}.npy"
+
+    if unfl_proc=="local":
+        file_path = f"sff/sff_goe_N={N}_β={β}_ntraj={ntraj}_v={v}.npy"
+    elif unfl_proc == "poly":
+        file_path = f"sff/sff_goe_N={N}_β={β}_ntraj={ntraj}_deg={deg}.npy"
+    elif unfl_proc == None:
+        file_path = f"sff/sff_goe_N={N}_β={β}_ntraj={ntraj}.npy"
+
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
         sff_list = np.zeros_like(tlist, dtype=np.float64)
         for traj_ind in tqdm(range(ntraj)):
             eigvals = calc_goe_eigvals(N, traj_ind)
-            if v>0:
+            if unfl_proc=="local":
                 eigvals = unf_eigval_fun(v, eigvals)
+            elif unfl_proc == "poly":
+                eigvals = unf_eigval_poly_fun(deg, eigvals)
+            elif unfl_proc == None:
+                eigvals = eigvals
             for i, t in enumerate(tlist):
                 exp_sum = np.sum(np.exp(-(β + 1j*t) * eigvals))
                 sff_list[i] += np.abs(exp_sum)**2
@@ -380,7 +444,7 @@ def calc_poi_eigvals(N, traj_ind):
         
     return eigvals
 
-def sff_poi_list_fun(N, β, tlist, v, ntraj):
+def sff_poi_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj):
     """
     Compute the Spectral Form Factor (sff) for GOE matrices of size N,
     averaged over `ntraj` random GOE matrices.
@@ -395,14 +459,25 @@ def sff_poi_list_fun(N, β, tlist, v, ntraj):
     - sff_list: Array of sff values for each T.
     """
     os.makedirs("sff",exist_ok=True)
-    file_path = f"sff/sff_poi_N={N}_β={β}_ntraj={ntraj}_v={v}.npy"
+
+    if unfl_proc=="local":
+        file_path = f"sff/sff_poi_N={N}_β={β}_ntraj={ntraj}_v={v}.npy"
+    elif unfl_proc == "poly":
+        file_path = f"sff/sff_poi_N={N}_β={β}_ntraj={ntraj}_deg={deg}.npy"
+    elif unfl_proc == None:
+        file_path = f"sff/sff_poi_N={N}_β={β}_ntraj={ntraj}.npy"
+
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
         sff_list = np.zeros_like(tlist, dtype=np.float64)
         for traj_ind in tqdm(range(ntraj)):
             eigvals = calc_poi_eigvals(N, traj_ind)
-            if v>0:
+            if unfl_proc=="local":
                 eigvals = unf_eigval_fun(v, eigvals)
+            elif unfl_proc == "poly":
+                eigvals = unf_eigval_poly_fun(deg, eigvals)
+            elif unfl_proc == None:
+                eigvals = eigvals
             for i, t in enumerate(tlist):
                 exp_sum = np.sum(np.exp(-(β + 1j*t) * eigvals))
                 sff_list[i] += np.abs(exp_sum)**2

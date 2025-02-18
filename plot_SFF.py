@@ -3,14 +3,20 @@ from dicke_sff_lib import *
 from parameters import *
 
 def main():
-    sff_goe_list = sff_goe_list_fun(N, β, tlist, v, ntraj)
-    sff_poi_list = sff_poi_list_fun(N, β, tlist, v, ntraj)
+    sff_goe_list = sff_goe_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
+    sff_poi_list = sff_poi_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
     num_g = len(g_arr)
     num_rows = (num_g + 1) // 2
     plt.figure(figsize=(10,5*num_rows))
-    plt.suptitle(f"j={j},M={M},α={α},v={v}")
+
+    if unfl_proc == "local":
+        plt.suptitle(f"j={j},M={M},α={α},v={v}")
+    elif unfl_proc == "poly":
+        plt.suptitle(f"j={j},M={M},α={α},deg={deg}")
+    elif unfl_proc == None:
+        plt.suptitle(f"j={j},M={M},α={α}")
     for g_ind, g in enumerate(g_arr):
-        sff_list = sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v)
+        sff_list = sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc)
         sff_rl = sff_rl_fun(tlist, sff_list)
         plt.subplot(num_rows,2,g_ind+1)
         plt.title(f"g={g}")
@@ -30,12 +36,15 @@ def main():
     if not os.path.exists("plots"):
         os.mkdir("plots")
     plt.legend()
-    plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}_v={v}.png')
+
+    if unfl_proc == "local":
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}_v={v}.png')
+    elif unfl_proc == "poly":
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}_deg={deg}.png')
+    elif unfl_proc == None:
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}.png')
+
     plt.show()
-    # g = 0.1
-    # eigvals = dicke_eigvals_fun(ω, ω0, j, M, g)
-    # plt.hist(eigvals, bins=60)
-    # plt.show()
 
 if __name__ == '__main__':
     main()
