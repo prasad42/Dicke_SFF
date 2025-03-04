@@ -3,26 +3,30 @@ from dicke_sff_lib import *
 from parameters import *
 
 def main():
-    sff_goe_list = sff_goe_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
-    sff_poi_list = sff_poi_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
     num_g = len(g_arr)
     num_rows = (num_g + 1) // 2
     plt.figure(figsize=(10,5*num_rows))
 
-    if unfl_proc == "local":
-        plt.suptitle(f"j={j},M={M},α={α},v={v}")
-    elif unfl_proc == "poly":
-        plt.suptitle(f"j={j},M={M},α={α},deg={deg}")
-    elif unfl_proc == None:
-        plt.suptitle(f"j={j},M={M},α={α}")
+    # if unfl_proc == "local":
+    #     plt.suptitle(f"j={j},M={M},α={α},v={v},dM={dM},tol={tol}")
+    # elif unfl_proc == "poly":
+    #     plt.suptitle(f"j={j},M={M},α={α},deg={deg},dM={dM},tol={tol}")
+    # elif unfl_proc == None:
+    #     plt.suptitle(f"j={j},M={M},α={α},dM={dM},tol={tol}")
     for g_ind, g in enumerate(g_arr):
-        sff_list = sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc)
+        sff_list, eig_d = sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc, dM, tol)
         sff_rl = sff_rl_fun(tlist, sff_list)
+
+        N = eig_d
+
+        sff_goe_list = sff_goe_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
+        sff_poi_list = sff_poi_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
+
         plt.subplot(num_rows,2,g_ind+1)
         plt.title(f"g={g}")
         plt.xscale('log'); plt.yscale('log')
-        plt.xlabel("Time"); plt.ylabel("sff")
-        plt.xlim(1e-3,1e3); plt.ylim(1e-8,1)
+        plt.xlabel("Time"); plt.ylabel("SFF")
+        # plt.xlim(1e-3,1e3); plt.ylim(1e-8,1)
         # Plot raw data
         plt.plot(tlist,sff_list,color='0.8')
         # Plot GOE
@@ -38,11 +42,11 @@ def main():
     plt.legend()
 
     if unfl_proc == "local":
-        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}_v={v}.png')
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_α={α}_v={v}_dM={dM}_tol={tol}.png')
     elif unfl_proc == "poly":
-        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}_deg={deg}.png')
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_α={α}_deg={deg}_dM={dM}_tol={tol}.png')
     elif unfl_proc == None:
-        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_gc={gc}.png')
+        plt.savefig(f'plots/Dicke_sff_j={j}_M={M}_β={β}_α={α}_dM={dM}_tol={tol}.png')
 
     plt.show()
 

@@ -134,19 +134,32 @@ def plot_sff(M, g, tlist, sff_goe_list):
 
     return 0
 
-def Dicke_sff_ramp_fun():
-    # Find the optimal ramp slope
-    m_arr_arr = []
-    for M in M_arr:
-        sff_goe_list = sff_goe_list_fun(j, M, β, tlist)
-        m_arr = []
-        for g in g_arr:
-            sff_list = sff_list_fun(ω, ω0, j, M, g, β, tlist)
-            sff_rl_list = sff_rl_fun(tlist, sff_list)
-            m = ramp_slope_fun(tlist, sff_rl_list, sff_goe_list)
-            m_arr.append(m)
-        m_arr_arr.append(m_arr)
+def Dicke_sff_ramp_fun(j, M):
     
+
+    os.makedirs("slope",exist_ok=True)
+    file_path = f"slope/m_arr_arr_j={j}_M={M}.npy"
+    if not os.path.exists(file_path): 
+        print(f"{file_path} does not exist, generating data.")
+        # Find the optimal ramp slope
+        m_arr_arr = []
+        for M in M_arr:
+            m_arr = []
+            for g in g_arr:
+                sff_list, eig_d = sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc, dM, tol)
+                sff_rl_list = sff_rl_fun(tlist, sff_list)
+                N = eig_d
+                sff_goe_list = sff_goe_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj)
+                # m_goe = ramp_slope_fun(tlist, sff_goe_list, sff_goe_list)
+                m = ramp_slope_fun(tlist, sff_rl_list, sff_goe_list)
+                m_arr.append(m)
+            m_arr_arr.append(m_arr)
+        np.save(file_path, m_arr_arr)
+    else:
+        print(f"{file_path} already exists.")
+    
+    m_arr_arr = np.load(file_path)
+
     return m_arr_arr
 
 def sff_distance_fun():
@@ -185,20 +198,22 @@ def sff_distance_fun():
     return dist_arr_arr
 
 def main():
-    m_arr_arr = Dicke_sff_ramp_fun()
+    
     # Plot slope of the ramp as function of g for various M's
-    plt.figure(figsize=(8,5))
-    plt.title("distance between GOE and Dicke SFF ramps")
+    # plt.figure(figsize=(8,5))
     for idx, M in enumerate(M_arr):
-        m_arr = m_arr_arr[idx]
-        plt.axhline(1, linestyle='--', color="k", label="GOE")
-        plt.plot(g_arr,m_arr,'.-', label=f'M={M_arr[idx]}')
-        plt.xlabel('g')
-        plt.ylabel('slope of the ramp')
+        plt.title(f"Slope of the Dicke SFF Ramps M={M}")
+        for j in j_arr:
+            m_arr_arr = Dicke_sff_ramp_fun(j, M)
+            m_arr = m_arr_arr[idx]
+            plt.plot(g_arr,m_arr,'.-', label=f'j={j}')
+            plt.xlabel('g')
+            plt.ylabel('slope of the ramp')
+            plt.grid()
+        plt.axhline(0.804795171368888, linestyle='--', color="k", label="GOE")
         plt.legend()
-        plt.grid()
-        plt.savefig(f"plots/Dicke_sff_j={j}_slope_ramp_vs_g_new")
-    plt.show()
+        plt.savefig(f"plots/Dicke_sff_slope_ramp_vs_g_new_M={M}")
+        plt.show()
 
 # def main():
 #     dist_arr_arr = sff_distance_fun()
