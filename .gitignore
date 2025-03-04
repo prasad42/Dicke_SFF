@@ -13,6 +13,8 @@ r/
 r_avg/
 sff/
 sff_con/
+slope/
+evals_cnrgd/
 
 # Ignore Python cache files
 __pycache__/
