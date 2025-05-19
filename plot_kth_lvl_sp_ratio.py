@@ -1,55 +1,66 @@
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 from dicke_sff_lib import *
 from parameters import *
 import warnings
 warnings.filterwarnings('ignore')
 
+# Parameters
+j_arr = [10, 50, 100]
+M_arr = np.arange(400, 450, 50)
+g_arr = {
+    10:  np.round(np.arange(0.1, 1.05, 0.05), 2),
+    50:  np.round(np.arange(0.1, 1.05, 0.05), 2),
+    100: np.round(np.arange(0.1, 1.05, 0.05), 2),
+}
+k_arr = [1, 10, 20, 30]
+N_goe = 1000
+α = 0.6
+colors = plt.cm.viridis(np.linspace(0, 1, len(j_arr)))
+markers = ['o', 's', '^']  # Marker styles for each j
+
 def main():
+    fig, axs = plt.subplots(1, 4, figsize=(6.8, 1.8), sharex=True, sharey=False)
+    axs = axs.flatten()
 
-    N = N_goe
-    r_avg_goe, r_goe = rk_avg_goe_fun(N, ntraj, k)
-    r_avg_poi, r_poi = rk_avg_poi_fun(N, ntraj, k)
-    # print(r_avg_goe, r_avg_poi)
-    plt.axhline(y=r_avg_goe, linestyle='-', color='r', alpha=0.8, 
-        label=rf'$\left\langle r\right\rangle_{{\text{{GOE Num}}}}$')
-    plt.axhline(y=r_avg_poi, linestyle='--', color='b', alpha=0.8, 
-        label=rf'$\left\langle r\right\rangle_{{\text{{Poi Num}}}}$')
+    for idx, k in enumerate(k_arr):
+        ax = axs[idx]
+        N = N_goe
+        r_avg_goe, _ = rk_avg_goe_fun(N, ntraj, k)
+        r_avg_poi, _ = rk_avg_poi_fun(N, ntraj, k)
 
-    # Constant reference lines (not changing with j)
-    if k == 1:
-        plt.axhline(y=0.536, linestyle='--', color='r', label=r'$\left\langle r\right\rangle_{\text{GOE}}$')
-        plt.axhline(y=0.386, linestyle='--', color='k', label=r'$\left\langle r\right\rangle_{\text{Poi}}$')
+        ax.axhline(y=r_avg_goe, linestyle='--', color='k', alpha=0.8, label='GOE' if idx == 0 else "")
+        ax.axhline(y=r_avg_poi, linestyle=':', color='r', alpha=0.8, label='Poisson' if idx == 0 else "")
+        ax.axvline(x=1, linestyle='--', color='gray', alpha=0.3)
 
-    # Generate distinct colors for each j using a colormap
-    colors = plt.cm.viridis(np.linspace(0, 1, len(j_arr)))  # You can change 'viridis' to other colormaps
-    # plt.title(f"k={k}, M={M}, α={α}, tol={tol}")
-    for i, j in enumerate(j_arr):  # Iterate over j values with an index
-        color = colors[i]  # Assign a unique color to this iteration
+        for i, j in enumerate(j_arr):
+            r_avg_arr = []
+            g_arr_for_j = g_arr[j]
+            for g in g_arr_for_j:
+                r_avg, _, _ = rk_avg_fun(ω, ω0, j, M, g, k, α=α)
+                r_avg_arr.append(r_avg)
+            ax.plot(g_arr_for_j / gc, r_avg_arr, marker=markers[i], color=colors[i], label=rf"$j={j}$" if idx == 0 else "")
 
-        r_avg_arr = []
-        r_dicke_arr = []
-        
-        for g in g_arr:
-            r_avg, r_dicke, eig_d = rk_avg_fun(ω, ω0, j, M, g, α, k, dM, tol)
-            r_avg_arr.append(r_avg)
-            r_dicke_arr.append(r_dicke)
-            print(f"g={g}, r={r_avg}")
+        ax.text(0.5, 0.5, rf"$\langle r_{{{k}}} \rangle$", transform=ax.transAxes,
+            fontsize=8, verticalalignment='top', bbox=dict(boxstyle='round', facecolor='white', alpha=0.6, edgecolor='grey'))
+        ax.tick_params(labelsize=7, direction='in', length=3, width=0.8)
+        ax.grid(True, which='both', linestyle='--', linewidth=0.5, alpha=0.7)
+        ax.xaxis.set_major_locator(plt.MaxNLocator(4))
+        ax.yaxis.set_major_locator(plt.MaxNLocator(5))
 
-        # Use the same color for each j
-        plt.plot(g_arr, r_avg_arr, '-o', color=color, label=f"j={j}")
-        # print(r_avg_arr)
+    # Global labels
+    fig.text(0.5, 0.01, r"$g/g_c$", ha='center', va='bottom', fontsize=9)
+    fig.text(0.05, 0.5, r"$\langle r_k \rangle$", ha='center', va='center', rotation='vertical', fontsize=9)
 
-    # plt.ylim(0.35,0.57)
-    plt.xlabel('g')
-    plt.ylabel(r'$\left\langle r\right\rangle$')
-    plt.legend()
-    plt.grid()
+     # Legend
+    handles, labels = axs[0].get_legend_handles_labels()
+    fig.legend(handles, labels, loc='upper center', ncol=5, fontsize=8, frameon=False, bbox_to_anchor=(0.5, 1.1))
 
-    # Save and show the plot
+    fig.tight_layout(rect=[0.05, 0.05, 1, 1])
     os.makedirs("plots", exist_ok=True)
-    plt.savefig(f'plots/Dicke_Level_spacing_ratio_M={M}_α={α}_k={k}_dM={dM}_tol={tol}.png')
+    plt.savefig(f'plots/Dicke_Level_spacing_ratio_subplots_M={M}_α={np.round(α,2)}.pdf', dpi=300, bbox_inches='tight')
     plt.show()
 
-if __name__=="__main__":
+if __name__ == "__main__":
     main()

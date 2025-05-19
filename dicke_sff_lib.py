@@ -5,6 +5,9 @@ import scipy.linalg as sl
 from tqdm import tqdm
 import warnings
 warnings.filterwarnings('ignore')
+from scipy.integrate import simpson
+from scipy.interpolate import interp1d
+from scipy.special import j1  # Bessel function of first kind
 
 def DH_par_fun(ω, ω0, j, M, g):
     '''
@@ -61,8 +64,7 @@ def compute_energy_lists(ω, ω0, j, M_vals, g, α):
     energy_lists = []
     for M_iter in M_vals:
         eigvals = eigvals_for_M_fun(ω, ω0, j, M_iter, g)
-        central_eigvals = central_eigenvals_fun(eigvals, α)
-        energy_lists.append(central_eigvals)
+        energy_lists.append(eigvals)
     return energy_lists
 
 def compute_relative_differences(energy_lists):
@@ -97,7 +99,7 @@ def select_converged_eigenvals(energy_lists, tol):
 
     return energy_lists[-1][converged_indices]
 
-def dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol):
+def dicke_eigvals_fun(ω, ω0, j, M, g, α, tol = 0.1):
     """
     Computes eigenvalues of the even parity Hamiltonian and selects converged ones
     using a relative tolerance criterion across 5 different M values.
@@ -118,6 +120,7 @@ def dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol):
       - converged_eigvals : Array of converged eigenvalues (from the largest M).
     """
     # Define the 5 M values
+    dM = int(0.1*M)
     M_vals = [M - 4*dM, M - 3*dM, M - 2*dM, M - dM, M]
     
     # Path to save converged eigenvalues
@@ -132,15 +135,19 @@ def dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol):
         # Select and return the converged eigenvalues (from the largest M)
         converged_eigvals = select_converged_eigenvals(energy_lists, tol)
         
+        # Select the central α% of the eigenvalues
+        converged_eigvals = central_eigenvals_fun(converged_eigvals, α)
+
         # Save converged eigenvalues
         np.save(file_path, converged_eigvals)
+
     else:
         print(f"{file_path} already exists. Loading saved data.")
         converged_eigvals = np.load(file_path)
 
-    eigvals = np.load(f"evals_par/evals_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_g={g}.npy")
-    print(f"Number of eigenvalues before filtrering: {len(eigvals)}")
-    print(f"Number of eigenvalues after filtering: {len(converged_eigvals)}")
+    eigvals = eigvals_for_M_fun(ω, ω0, j, M - 4*dM, g)
+    print(f"Converged Central Eigenvalues: {len(eigvals)}")
+    print(f"Number of eigenvalues before convergence test: {len(converged_eigvals)}")
 
     return converged_eigvals
 
@@ -236,7 +243,7 @@ def unf_eigval_poly_fun(deg, eigvals):
 
     return unfolded
 
-def eigval_sp_poly_fun(eigvals, deg):
+def eigval_sp_poly_fun(eigvals, deg = 20):
 
     '''
     The function returns the spacings between the locally unfolded eigenvalues
@@ -255,7 +262,7 @@ def eigval_sp_poly_fun(eigvals, deg):
 
     return eigvals_sp
 
-def r_avg_fun(ω, ω0, j, M, g, α, dM, tol):
+def r_avg_fun(ω, ω0, j, M, g, α = 0.9, tol = 0.1):
 
     '''
     Calculates the average eigenvalue spacing ratio of the spectrum
@@ -266,7 +273,7 @@ def r_avg_fun(ω, ω0, j, M, g, α, dM, tol):
     '''
     eigval_sp_arr = []
     r = []
-    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol)
+    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, tol)
     for i in range(len(eigvals)-1):
         eigval_sp_arr.append(eigvals[i+1]-eigvals[i])
     for i in range(len(eigvals)-2):
@@ -279,7 +286,7 @@ def r_avg_fun(ω, ω0, j, M, g, α, dM, tol):
 
     return np.average(r)
 
-def rk_avg_fun(ω, ω0, j, M, g, α, k, dM, tol):
+def rk_avg_fun(ω, ω0, j, M, g, k, α = 0.6, tol = 0.1):
 
     '''
     Calculates the average eigenvalue spacing ratio of the spectrum
@@ -292,11 +299,11 @@ def rk_avg_fun(ω, ω0, j, M, g, α, k, dM, tol):
     os.makedirs("r_avg",exist_ok=True)
     os.makedirs("r",exist_ok=True)
 
-    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol)
+    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, tol)
     eig_d = len(eigvals)
 
-    file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_dM={dM}_tol={tol}.npy"
-    file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_dM={dM}_tol={tol}.npy"
+    file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
+    file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
     if not (os.path.exists(file_path) and os.path.exists(file_path1)):
         r = np.zeros(len(eigvals)-(2*k))
         for i in range(len(eigvals)-(2*k)):
@@ -372,7 +379,85 @@ def rk_avg_poi_fun(N, ntraj, k):
 
     return r_avg, r
 
-def sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc, dM, tol):
+def p_poissonian(s):
+    """
+    Poissonian distribution for the spacing of eigenvalues.
+    """
+    return np.exp(-s)
+
+def p_goe(s):
+    """
+    Gaussian Orthogonal Ensemble (GOE) distribution for the spacing of eigenvalues.
+    """
+    return (np.pi / 2) * s * np.exp(-np.pi * s**2 / 4)
+
+def compute_eta(unfolded_spacings, bins=100):
+    """
+    Compute the spectral measure η using your histogram data
+    and analytic expressions for p_{2D-P}(s) and p_{GinUE}(s).
+
+    Parameters
+    ----------
+    unfolded_spacing : array-like
+        The unfolded spacing data from your system (not histogrammed yet).
+    
+    bins : int
+        Number of bins to use for histogram of p(s).
+
+    Returns
+    -------
+    eta : float
+        Spectral measure η.
+    """
+
+    # At module level or during setup, compute and store once:
+    fixed_s_vals = np.linspace(0, 3, 1000)
+    p_poisson_fixed = p_poissonian(fixed_s_vals)
+    p_ginue_fixed = p_goe(fixed_s_vals)
+    eta_denominator = simpson((p_ginue_fixed - p_poisson_fixed)**2, x=fixed_s_vals)
+
+    # Histogram your observed P(s)
+    hist, bin_edges = np.histogram(unfolded_spacings, bins=bins, density=True)
+    s_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+    # Interpolation range (use only the meaningful support)
+    s_vals = np.linspace(0, np.max(s_centres), 1000)
+
+    # Interpolate p(s)
+    f_ps = interp1d(s_centres, hist, kind='linear', bounds_error=False, fill_value=0.0)
+
+    # Evaluate all distributions on common support
+    ps_interp = f_ps(s_vals)
+    p_poisson_vals = p_poissonian(s_vals)
+
+    # Compute numerator and denominator using Simpson's rule
+    numerator = simpson((ps_interp - p_poisson_vals)**2, x = s_vals)
+    eta = numerator / eta_denominator
+    
+    return eta
+
+def Kc_GOE(t, N):
+    μt = t
+    Kc = np.zeros_like(t, dtype=np.float64)
+    mask1 = (0 < μt) & (μt < 2 * np.pi)
+    mask2 = (2 * np.pi <= μt)
+    
+    Kc[mask1] = N * (μt[mask1]/np.pi - (μt[mask1]/(2*np.pi)) * np.log(1 + μt[mask1]/np.pi))
+    Kc[mask2] = N * (2 - (μt[mask2]/(2*np.pi)) * np.log((μt[mask2]+np.pi)/(μt[mask2]-np.pi)))
+    
+    return Kc
+
+def K_GOE(t, N):
+    """Full GOE spectral form factor"""
+    Kc = Kc_GOE(t, N)
+    return (Kc + (np.pi * j1(2 * N * t / np.pi) / (t))**2)
+
+def K_Poisson(t, N):
+    """Poisson spectral form factor"""
+    t = np.array(t)
+    return (N + (2 / t**2) - ((1 + 1j * t)**(1 - N) + (1 - 1j * t)**(1 - N)) / (t**2))
+
+def sff_list_fun(ω, ω0, j, M, g, β, tlist, v, deg, unfl_proc, tol = 0.1, α = 0.9):
     '''
     Calculates the sff with energies of the Dicke Hamiltonian at each time step for a single trajectory.
     Args:
@@ -383,18 +468,60 @@ def sff_list_fun(ω, ω0, j, M, g, β, tlist, α, v, deg, unfl_proc, dM, tol):
     - tlist : pass time list as an array
     '''
     os.makedirs("sff",exist_ok=True)
-    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, dM, tol)
+    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α)
     eig_d = len(eigvals)
 
     if unfl_proc=="local":
         eigvals = unf_eigval_fun(v, eigvals)
-        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}_dM={dM}_tol={tol}.npy"
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}_tol={tol}.npy"
     elif unfl_proc == "poly":
         eigvals = unf_eigval_poly_fun(deg, eigvals)
-        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_deg={deg}_dM={dM}_tol={tol}.npy"
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_deg={deg}_tol={tol}.npy"
     elif unfl_proc == None:
         eigvals = eigvals
-        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_dM={dM}_tol={tol}.npy"
+        file_path = f"sff/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_tol={tol}.npy"
+    
+    if not os.path.exists(file_path):
+        print(f"{file_path} does not exist, generating data.")
+        sff_list = []
+        for t in tqdm(tlist):
+            sff = 0
+            norm = 0
+            for eigval in eigvals:
+                sff += np.exp(-(β+1j*t)*(eigval))
+                norm += np.exp(-β*eigval)
+            sff = np.conjugate(sff)*sff/(norm**2)
+            sff_list.append(sff)
+            np.save(file_path,np.array(sff_list))
+    else:
+        print(f"{file_path} already exists.")
+    sff_list = np.load(file_path)
+
+    return sff_list, eig_d
+
+def sff_list_fun_finer_tlist(ω, ω0, j, M, g, β, tlist, v, deg, unfl_proc, tol = 0.1, α = 0.9):
+    '''
+    Calculates the sff with energies of the Dicke Hamiltonian at each time step for a single trajectory.
+    Args:
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    - β : Inverse Temperature
+    - tlist : pass time list as an array
+    '''
+    os.makedirs("sff",exist_ok=True)
+    eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α)
+    eig_d = len(eigvals)
+
+    if unfl_proc=="local":
+        eigvals = unf_eigval_fun(v, eigvals)
+        file_path = f"sff/sff_finer_tlist={len(tlist)}_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}_tol={tol}.npy"
+    elif unfl_proc == "poly":
+        eigvals = unf_eigval_poly_fun(deg, eigvals)
+        file_path = f"sff/sff_finer_tlist={len(tlist)}_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_deg={deg}_tol={tol}.npy"
+    elif unfl_proc == None:
+        eigvals = eigvals
+        file_path = f"sff/sff_finer_tlist={len(tlist)}_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_tol={tol}.npy"
     
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
@@ -432,7 +559,7 @@ def sff_rl_fun(tlist, sff_list, win = 50):
         sff_rl_val = np.average(sff_list[win_start:win_end], axis=0)
         sff_rl.append(sff_rl_val)
 
-    return sff_rl
+    return np.array(sff_rl)
 
 def generate_goe_matrix(N):
     """

@@ -15,6 +15,8 @@ sff/
 sff_con/
 slope/
 evals_cnrgd/
+evals_goe_wigner/
+
 
 # Ignore Python cache files
 __pycache__/

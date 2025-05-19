@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt	
 '''
 -------------------------------------------------------------------------------------
 				        # parameters #
@@ -7,15 +8,8 @@ import numpy as np
 
 # SET UP THE CALCULATION
 
-ω  = 1.0; ω0 = 1.0; j = 20; M = 400; β=0; gc={np.round((np.sqrt(ω*ω0)/2),2)}
-g_arr = [0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0]
+ω  = 1.0; ω0 = 1.0; j = 20; M = 400; β=0; gc=np.round((np.sqrt(ω*ω0)/2),2)
 g_arr = np.round(np.arange(0.1, 1.05, 0.05),2)
-# g_arr = [0.1, 0.2, 0.4, 0.5, 0.7, 1.0]
-# g_arr = [0.1, 0.2, 0.3, 0.4]
-# g_arr = [0.5, 0.7, 0.8, 1.0]
-
-# Degree of level spacing ratio
-k = 10
 
 # Select unfolding procedure
 # unfl_proc = "local"
@@ -28,24 +22,12 @@ v = 5
 # Degree of polynomial unfolding
 deg = 20
 
-# For Level Spacing Ratio
-j_arr = [10, 15, 20]
-M_arr = np.arange(400,450,50)
-g_cnrgd = 1.0
-N_goe = 20000
 
 # Number of random matrices to average over in GOE and GUE
 ntraj = 100
 
 # Filter the eigenvalue as per the following parameter
-α = 0.9 # Use only this much of the eigenvalues in the center of the spectrum (discard the edge spectrum)
 # One more filtering to check the convergence of the eigenvalues. (E_M1-E_M2)/Average < tol
-tol = 0.1
-# (M2-M1)/M2 = 0.1 
-dM_per = 0.1   # Percent difference in M and M-dM
-dM = int(dM_per*M)
-
-#
 # N = int(α*(2*j+1)*M/2)
 
 # Number of Processes
@@ -63,3 +45,23 @@ tlist = np.concatenate([t_vals_0_to_01, t_vals_01_to_1, t_vals_1_to_10, t_vals_1
 StartTime = 0
 LateTime = 100
 tlist_open = np.arange(StartTime, LateTime, 0.01)
+
+# Apply APS-friendly plot settings
+plt.rcParams.update({
+    'font.size': 8,
+    'axes.labelsize': 8,
+    'axes.titlesize': 8,
+    'legend.fontsize': 6,
+    'xtick.labelsize': 8,
+    'ytick.labelsize': 8,
+    'lines.linewidth': 1,
+    'lines.markersize': 4,
+    'pdf.fonttype': 42,  # Embed fonts
+    'ps.fonttype': 42,
+    'font.family': 'sans-serif',
+    'font.sans-serif': ['DejaVu Sans'],
+})
+
+# APS size: one column = 8.6 cm = 3.3858 inches
+fig_width = 3.3858  # inches
+fig_height_per_row = 1.2  # adjust for your plots
