@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
-from dicke_sff_lib import *
-from parameters import *
+from closed_dicke_lib import *
+from closed_dicke_parameters import *
 import os
 import numpy as np
 

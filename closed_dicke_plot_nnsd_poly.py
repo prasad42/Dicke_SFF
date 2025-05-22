@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import multiprocessing as mp
-from parameters import *
-from dicke_sff_lib import *
+from closed_dicke_lib import *
+from closed_dicke_lib import *
 from matplotlib.ticker import MaxNLocator, MultipleLocator  # Import Locators
 from matplotlib.lines import Line2D
 

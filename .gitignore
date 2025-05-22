@@ -16,7 +16,28 @@ sff_con/
 slope/
 evals_cnrgd/
 evals_goe_wigner/
-
+dspf/
+ev/
+evals/
+evals_par/
+plots/
+SFF/
+temp/
+evals_par_Lop/
+evals_GinOE/
+evals_GinUE/
+dsff/
+spacings/
+mask_cache/
+local_density/
+evals_Poi/
+converged_eigvals/
+mask_cache/
+temp/
+z/
+z_avg/
+dsff_filtered/
+plots_dsff_filtered/
 
 # Ignore Python cache files
 __pycache__/

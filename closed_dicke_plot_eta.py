@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from parameters import *
-from dicke_sff_lib import *
+from closed_dicke_parameters import *
+from closed_dicke_lib import *
 import os
 
 j_arr = [10, 50, 100]

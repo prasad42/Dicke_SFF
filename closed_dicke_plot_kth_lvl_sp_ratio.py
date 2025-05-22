@@ -1,8 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import os
-from dicke_sff_lib import *
-from parameters import *
+from closed_dicke_lib import *
+from closed_dicke_lib import *
 import warnings
 warnings.filterwarnings('ignore')
 
