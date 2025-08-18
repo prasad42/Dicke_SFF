@@ -4,11 +4,13 @@ from closed_dicke_parameters import *
 import os
 import numpy as np
 
+ω  = 1.0; ω0 = 2.0; β=0; gc=np.round((np.sqrt(ω*ω0)/2),2)
+
 g_arr = [0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.8, 1.0]
 # g_arr = [0.2, 0.85]
 # g_arr = [0.2, 1.0]
 # g_arr = [1.0, 2.0, 3.0, 4.0]
-j_arr = [50]
+j_arr = [10]
 M = 400
 unfl_proc = "poly"
 α = 0.6  # Filtering parameter for Dicke model

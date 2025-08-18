@@ -34,13 +34,6 @@ g_arr = {
 
 # Calculate gc for each gamma
 gc_arr = np.array([np.round(np.sqrt(ω/ω0* ((γ/2)**2+ω**2) )/2, 2) for γ in γ_arr])
-print(gc_arr)
-
-ntraj = 20
-θ1 = np.pi/2.1
-θ2 = np.pi/1.9
-n_theta = 10
-# filter_radius = 15
 
 # Number of random matrices to 6average over in GOE and GUE
 num_realizations = 1000
@@ -49,7 +42,7 @@ num_realizations = 1000
 nproc = 2
 
 # Time list
-pts = 100
+pts = 1
 t_vals_1 = np.linspace(0.0001, 0.001, pts, endpoint=False)
 t_vals0 = np.linspace(0.001, 0.01, pts, endpoint=False)
 t_vals1 = np.linspace(0.01, 0.1, pts, endpoint=False)

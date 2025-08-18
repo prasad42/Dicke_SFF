@@ -4,7 +4,9 @@ from closed_dicke_parameters import *
 from closed_dicke_lib import *
 import os
 
-j_arr = [10, 50, 100]
+j_arr = [10, 50]#, 100]
+ω0 = 1.2
+gc = np.sqrt(ω*ω0)/2
 g_arr = {
     10:  np.round(np.arange(0.1, 1.05, 0.05),2),
     15:  np.round(np.arange(0.1, 1.05, 0.05),2),

@@ -8,7 +8,7 @@ import numpy as np
 # SET UP THE CALCULATION
 
 ω  = 1.0; ω0 = 1.0; j = 20; M = 80; v = 30; γ_arr=[1.0, 2.0]; β=10; ntraj=100; 
-g_arr = np.round(np.arange(0.1,1.05,0.1),2)
+# g_arr = np.round(np.arange(0.1,1.05,0.1),2)
 # g_arr = [0.2, 1.0]
 
 method = "mcsolve"

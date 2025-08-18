@@ -8,9 +8,9 @@ warnings.filterwarnings('ignore')
 from scipy.special import j1  # Bessel function of first kind
 
 
-def DH_fun(ω, ω0, j, M, g):
+def DH_fun(ω, ω0, j, M, gm, gp):
     '''
-    Dicke Hamiltonian for the following parameters.
+    Anisotropic Dicke Hamiltonian for the following parameters.
     Args:
     - ω : frequency of the bosonic field
     - ω0 : Energy difference in spin states
@@ -23,12 +23,13 @@ def DH_fun(ω, ω0, j, M, g):
     Jm = qt.tensor(qt.qeye(M), qt.jmat(j, '-'))
     Jz = qt.tensor(qt.qeye(M), qt.jmat(j, 'z'))
     H0 = ω * a.dag() * a + ω0 * Jz
-    H1 = 1.0 / np.sqrt(2*j) * (a + a.dag()) * (Jp + Jm)
-    H = H0 + g * H1
+    Hm = 1.0 / np.sqrt(2*j) * (a*Jp + a.dag()*Jm)
+    Hp = 1.0 / np.sqrt(2*j) * (a*Jm + a.dag()*Jp)
+    H = H0 + gp * Hp + gm * Hm
     
     return H
 
-def sff_rl_fun(ω, ω0, j, M, g, β, tlist, γ, ntraj, θntraj, nproc, win = 50):
+def sff_rl_fun(ω, ω0, j, M, gm, gp, β, tlist, γ, ntraj, θntraj, nproc, win = 50):
     '''
     This function returns the rolling average of the sff over time.
     Args:
@@ -39,7 +40,7 @@ def sff_rl_fun(ω, ω0, j, M, g, β, tlist, γ, ntraj, θntraj, nproc, win = 50)
     - tlist : pass time list as an array
     - win: Window size for rolling average
     '''
-    sff_list = sff_open_list_fun(ω, ω0, j, M, g, β, γ, tlist, ntraj, θntraj, nproc)
+    sff_list = sff_open_list_fun(ω, ω0, j, M, gm, gp, β, γ, tlist, ntraj, θntraj, nproc)
     sff_list = np.column_stack(sff_list)
     sff_rl = []
     for t_ind in range(0,len(tlist),1):
@@ -96,7 +97,7 @@ def sff_goe_list_fun(j, M, β, tlist, ntraj):
 
     return sff_list
 
-def psi0_fun(ω, ω0, j, M, g, β):
+def psi0_fun(ω, ω0, j, M, gm, gp, β):
     '''
     Returns CGS function
     Args:
@@ -108,7 +109,7 @@ def psi0_fun(ω, ω0, j, M, g, β):
     - β : Inverse temperature
     '''
     π = np.pi
-    H = DH_fun(ω, ω0, j, M, g)
+    H = DH_fun(ω, ω0, j, M, gm, gp)
     eigvals, eigvecs = H.eigenstates()
     psi0 = np.sum(np.exp(-β/2*eigvals) * eigvecs)
     psi0 /= np.sqrt(np.sum(np.exp(-β*eigvals)))
@@ -116,7 +117,7 @@ def psi0_fun(ω, ω0, j, M, g, β):
     
     return psi0
 
-def sff_open_list_fun(ω, ω0, j, M, g, β, γ, tlist, ntraj, nproc):
+def sff_open_list_fun(ω, ω0, j, M, gm, gp, β, γ, tlist, ntraj, nproc):
     '''
     Returns open sff
     Args:
@@ -132,20 +133,21 @@ def sff_open_list_fun(ω, ω0, j, M, g, β, γ, tlist, ntraj, nproc):
     '''
     if not os.path.exists("dspf"):
         os.mkdir(f"dspf")
-    file_path = f"dspf/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω/ω0*(γ**2/4+ω**2))/2,2)}_β={β}_γ={γ}_g={g}_ntraj={ntraj}.npy"
+    # file_path = f"dspf/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω/ω0*(γ**2/4+ω**2))/2,2)}_β={β}_γ={γ}_gm={gm}_gp={gp}_ntraj={ntraj}.npy"
+    file_path = f"dspf/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_β={β}_γ={γ}_gm={gm}_gp={gp}_ntraj={ntraj}.npy"
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, generating data.")
-        H = DH_fun(ω, ω0, j, M, g)
+        H = DH_fun(ω, ω0, j, M, gm, gp)
         c_op = np.sqrt(γ) * qt.tensor(qt.destroy(M),qt.qeye(int(2*j+1)))
-        psi0 = psi0_fun(ω, ω0, j, M, g, β)
+        psi0 = psi0_fun(ω, ω0, j, M, gm, gp, β)
         e_op = psi0 * psi0.dag()
         if ntraj>1:
-            result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"loky", "num_cpus":nproc})
+            result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"serial", "num_cpus":nproc})
         elif ntraj==1 and γ==0.0:
             opts = qt.Options(progress_bar=True)
             result = qt.sesolve(H, psi0, tlist, e_op, options=opts)
         elif ntraj==1:
-            result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"loky", "num_cpus":nproc})
+            result = qt.mcsolve(H, psi0, tlist, c_op, e_op, ntraj = ntraj, options={"map":"serial", "num_cpus":nproc})
         print(result)
         sff = np.abs(result.expect)
         np.save(file_path,sff)

@@ -1,14 +1,26 @@
 import matplotlib.pyplot as plt
 import numpy as np
 from open_dicke_dspf_lib import *
-from open_dicke_dspf_parameters import *
+# from open_dicke_dspf_parameters import *
 from tqdm import tqdm
 import os
+ω  = 1.0; ω0 = 1.0
+j = 20; M = 80
+gm_arr = [1.0, 1.5, 2.0]
+gp = 3.0
+γ = 2.0
+β_vals = [0]
 
-g_arr = np.round(np.arange(0.1, 1.05, 0.1), 2)
-γ = 2.2
-β_vals = [0, 5]
-colors = plt.cm.cividis(np.linspace(0, 1, len(g_arr)))  # colour variation for g
+method = "mcsolve"
+ntraj = 100
+nproc = 7
+
+# Time list for open model with MCWF method
+StartTime = 0
+LateTime = 100
+tlist_open = np.arange(StartTime, LateTime, 0.01)
+
+colors = plt.cm.cividis(np.linspace(0, 1, len(gm_arr)))  # colour variation for g
 
 def main():
     fig, axs = plt.subplots(1, 2, figsize=(6.8, 2.7), sharey=False)
@@ -18,16 +30,17 @@ def main():
         ax = axs[i]
         ax.set_xlim(1e-3,1e2)
 
-        for g_idx, g in enumerate(g_arr):
+        for g_idx, gm in enumerate(gm_arr):
             tlist_open = np.arange(StartTime, LateTime, 0.001 if β==0 else 0.01)
             if method == "mcsolve":
-                sff_list = sff_open_list_fun(ω, ω0, j, M, g, β, γ, tlist_open, ntraj, nproc)
+                sff_list = sff_open_list_fun(ω, ω0, j, M, gm, gp, β, γ, tlist_open, ntraj, nproc)
             elif method == "ssesolve":
-                sff_list = sff_open_list_sse_fun(ω, ω0, j, M, g, β, γ, tlist_open, ntraj, nproc)
+                sff_list = sff_open_list_sse_fun(ω, ω0, j, M, gm, gp, β, γ, tlist_open, ntraj, nproc)
             else:
                 raise ValueError("Unknown method. Choose 'mcsolve' or 'ssesolve'.")
 
-            ax.plot(tlist_open, sff_list, label=r"$g/g_{cγ}$"+f"={np.round(g/gc, 2)}", linewidth=1, color=colors[g_idx])
+            # ax.plot(tlist_open, sff_list, label=r"$g/g_{cγ}$"+f"={np.round(g/gc, 2)}", linewidth=1, color=colors[g_idx])
+            ax.plot(tlist_open, sff_list, linewidth=1, color=colors[g_idx])
 
         ax.set_xscale('log')
         ax.set_yscale('log')

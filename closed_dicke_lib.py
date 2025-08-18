@@ -129,7 +129,7 @@ def dicke_eigvals_fun(ω, ω0, j, M, g, α, tol = 0.1):
 
     if not os.path.exists(file_path):
         print(f"{file_path} does not exist, computing converged eigenvalues.")
-        # Get the central eigenvalues for each M value
+        # Get the eigenvalues for each M value
         energy_lists = compute_energy_lists(ω, ω0, j, M_vals, g, α)
         
         # Select and return the converged eigenvalues (from the largest M)
@@ -286,7 +286,7 @@ def r_avg_fun(ω, ω0, j, M, g, α = 0.9, tol = 0.1):
 
     return np.average(r)
 
-def rk_avg_fun(ω, ω0, j, M, g, k, α = 0.6, tol = 0.1):
+def rk_avg_fun(ω, ω0, j, M, g, k, α = 0.6, tol = 0.1, unfolding = False, deg = 20, v = 10):
 
     '''
     Calculates the average eigenvalue spacing ratio of the spectrum
@@ -300,22 +300,61 @@ def rk_avg_fun(ω, ω0, j, M, g, k, α = 0.6, tol = 0.1):
     os.makedirs("r",exist_ok=True)
 
     eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α, tol)
-    eig_d = len(eigvals)
-
-    file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
-    file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
-    if not (os.path.exists(file_path) and os.path.exists(file_path1)):
-        r = np.zeros(len(eigvals)-(2*k))
-        for i in range(len(eigvals)-(2*k)):
-            r_val = (eigvals[i+2*k]-eigvals[i+k])/(eigvals[i+k]-eigvals[i])
-            r[i] = min(r_val,1/r_val)
-            # r[i] = r_val
-        r_avg = np.average(r)
-        np.save(file_path,r_avg)
-        np.save(file_path1, r)
-    else:
-        r_avg = np.load(file_path)
-        r = np.load(file_path1)
+    if unfolding == "poly":
+        eigvals = unf_eigval_poly_fun(deg=deg, eigvals=eigvals)
+        eig_d = len(eigvals)
+        file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}_deg={deg}.npy"
+        file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}_deg={deg}.npy"
+        if not (os.path.exists(file_path) and os.path.exists(file_path1)):
+            r = np.zeros(len(eigvals)-(2*k))
+            for i in range(len(eigvals)-(2*k)):
+                r_val = (eigvals[i+2*k]-eigvals[i+k])/(eigvals[i+k]-eigvals[i])
+                r[i] = min(r_val,1/r_val)
+                # r[i] = r_val
+            r_avg = np.average(r)
+            np.save(file_path,r_avg)
+            np.save(file_path1, r)
+            print(f"Generated {file_path} and {file_path1}")
+        else:
+            r_avg = np.load(file_path)
+            r = np.load(file_path1)
+            print(f"{file_path} and {file_path1} already exist. Loading data.")
+    elif unfolding == "local":
+        eigvals = unf_eigval_fun(v, eigvals)
+        eig_d = len(eigvals)
+        file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}_v={v}.npy"
+        file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}_v={v}.npy"
+        if not (os.path.exists(file_path) and os.path.exists(file_path1)):
+            r = np.zeros(len(eigvals)-(2*k))
+            for i in range(len(eigvals)-(2*k)):
+                r_val = (eigvals[i+2*k]-eigvals[i+k])/(eigvals[i+k]-eigvals[i])
+                r[i] = min(r_val,1/r_val)
+                # r[i] = r_val
+            r_avg = np.average(r)
+            np.save(file_path,r_avg)
+            np.save(file_path1, r)
+            print(f"Generated {file_path} and {file_path1}")
+        else:
+            r_avg = np.load(file_path)
+            r = np.load(file_path1)
+            print(f"{file_path} and {file_path1} already exist. Loading data.")
+    elif unfolding == False:
+        eigvals = eigvals
+        eig_d = len(eigvals)
+        file_path = f"r_avg/r_avg_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
+        file_path1 = f"r/r_ω={ω}_ω0={ω0}_j={j}_M={M}_g={g}_α={α}_k={k}_tol={tol}.npy"
+        if not (os.path.exists(file_path) and os.path.exists(file_path1)):
+            r = np.zeros(len(eigvals)-(2*k))
+            for i in range(len(eigvals)-(2*k)):
+                r_val = (eigvals[i+2*k]-eigvals[i+k])/(eigvals[i+k]-eigvals[i])
+                r[i] = min(r_val,1/r_val)
+                # r[i] = r_val
+            r_avg = np.average(r)
+            np.save(file_path,r_avg)
+            np.save(file_path1, r)
+        else:
+            r_avg = np.load(file_path)
+            r = np.load(file_path1)
 
     return r_avg, r, eig_d
 

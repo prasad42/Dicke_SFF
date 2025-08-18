@@ -4,7 +4,7 @@ import os
 from open_dicke_Liou_lib import *
 from open_dicke_Liou_parameters import *
 
-α0_arr = [0.0]
+α0_arr = [0.0,1/5]
 # Define gamma values
 γ_arr = [2.2]
 gc_arr = np.array([np.round(np.sqrt(ω/ω0*(γ**2/4+ω**2))/2, 2) for γ in γ_arr])

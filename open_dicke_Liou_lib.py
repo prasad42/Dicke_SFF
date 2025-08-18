@@ -758,12 +758,13 @@ def compute_dsff(ω, ω0, j, M_arr, γ, g, tlist, β, θ=0, win=100, α0=0.0, n_
             proj_eigs = x * np.cos(theta_val) + y * np.sin(theta_val)
 
             for i, t in tqdm(enumerate(tlist), total=len(tlist), desc=f"Theta {np.round(theta_val, 2)}"):
-                exp_term = np.exp(-(β - 1j * t) * proj_eigs * filter_fun)
+                exp_term = np.exp(-(β - 1j * t) * proj_eigs) * filter_fun
                 sff = np.abs(np.sum(exp_term))**2
                 dsff_all[idx, i] = sff
 
-        norm = np.sum(np.exp(-β * filter_fun))
+        norm = np.sum(np.exp(-β * eigvals)*filter_fun)
         dsff_raw = np.mean(dsff_all, axis=0) / (norm**2)  # Average over θ
+        print(dsff_raw)
         dsff = dsff_rl_rect_fun(dsff_raw, win)
 
         np.save(file_path, dsff)
@@ -808,7 +809,7 @@ def dsff_rl_rect_fun(dsff, win):
 def K_Poisson(t, N):
     """Poisson spectral form factor"""
     t = np.array(t)
-    return N + (N-1)*N *np.exp(-t**2)
+    return 1/N + (N-1)/N *np.exp(-t**2)
 
 def theoretical_dsff_ginue(tlist, N):
     """
