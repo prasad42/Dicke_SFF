@@ -38,6 +38,7 @@ z/
 z_avg/
 dsff_filtered/
 plots_dsff_filtered/
+evals_perturb/
 
 # Ignore Python cache files
 __pycache__/
