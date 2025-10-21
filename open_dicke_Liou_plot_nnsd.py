@@ -6,6 +6,8 @@ from open_dicke_Liou_lib import *
 from matplotlib.lines import Line2D
 
 # Parameters
+ω = 1.0
+ω0 = 1.2
 γ_arr = [2.2]
 gc_arr = np.array([np.round(np.sqrt(ω/ω0* ((γ/2)**2+ω**2) )/2, 2) for γ in γ_arr])
 g_arr = {
@@ -15,7 +17,9 @@ g_arr = {
 rel_tol = 0.01
 
 M_arr = [40, 30, 20]
-M_arr = [40]
+
+j= 2
+M_arr = [10]
 
 def main():
     os.makedirs("plots", exist_ok=True)

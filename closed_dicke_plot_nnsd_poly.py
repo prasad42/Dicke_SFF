@@ -2,19 +2,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import multiprocessing as mp
 from closed_dicke_lib import *
-from closed_dicke_lib import *
+from closed_dicke_parameters import *
 from matplotlib.ticker import MaxNLocator, MultipleLocator  # Import Locators
 from matplotlib.lines import Line2D
 
-j = 50
+j = 1
 g_arr = [0.1, 0.2, 0.4, 0.5, 0.7, 1.0]
-α = 0.6
+g_arr = [0.0]
+α = 1.0
+M = 10
 
 def main():
     num_g = len(g_arr)
     num_cols = 3
     num_rows = (num_g + num_cols - 1) // num_cols
-    fig_height = num_rows * fig_height_per_row
+    # fig_height = num_rows * fig_height_per_row
     fig, axes = plt.subplots(num_rows, num_cols, figsize=(3.4, 2.2),
                               sharex='col', sharey='row')
 
@@ -30,7 +32,7 @@ def main():
 
         eigvals = dicke_eigvals_fun(ω, ω0, j, M, g, α = α)
         eigval_sp = eigval_sp_poly_fun(eigvals, deg)
-
+        print(eigvals, eigval_sp)
         ax.plot(x_val, y_gauss, '--', color='k', label='GOE', linewidth=1)
         ax.plot(x_val, y_poi, ':', color='r', label='Poisson', linewidth=1)
         # ax.hist(eigval_sp, bins=70, histtype='step', density=True, label='Dicke Model')
@@ -49,7 +51,8 @@ def main():
          # Control the x and y ticks
         # ax.xaxis.set_major_locator(MultipleLocator(1))  # Set x-tick interval to 1
         # ax.yaxis.set_major_locator(MultipleLocator(1))  # 3 ticks on y-axis
-
+        eta_val = compute_eta(eigval_sp)
+        print('eta (perturbative) =', eta_val)
     # Hide unused axes
     for g_ind in range(len(g_arr), num_rows * num_cols):
         fig.delaxes(axes.flat[g_ind])
@@ -77,6 +80,8 @@ def main():
                 format='pdf', bbox_inches='tight', dpi=300)
 
     plt.show()
+
+    
 
 if __name__ == "__main__":
     main()

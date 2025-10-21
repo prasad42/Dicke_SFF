@@ -50,27 +50,27 @@ def Dicke_Lop_even_evals_fun(ω, ω0, j, M, g, γ):
         H = H0 + g * H1
         Lop = qt.liouvillian(H,np.sqrt(γ)*a)
 
-        # Non sparse
-        # Lop_even = create_parity_block(Lop, M, j)
-
         # Sparse
-        Lop = Lop.data
-        Lop = Lop.to_array()
-        Lop = ss.csr_matrix(Lop)
-        print(f"Lop is sparse: {ss.issparse(Lop)}, memory size: {getsizeof(Lop)}")
-        Lop_even = create_parity_block_sparse(Lop, M, j)
-        print(f"g: {g}, Lop: {np.shape(Lop_even)}")
-        eigvals = ssl.eigs(Lop_even, k=int((2*j+1)*M)**2/2, return_eigenvectors=False)
+        # Lop = Lop.data
+        # Lop = Lop.to_array()
+        # Lop = ss.csr_matrix(Lop)
+        # print(f"Lop is sparse: {ss.issparse(Lop)}, memory size: {getsizeof(Lop)}")
+        # Lop_even = create_parity_block_sparse(Lop, M, j)
+        # Lop_even = ss.csr_matrix(Lop_even)
+        # print(f"Lop_even is sparse: {ss.issparse(Lop_even)}, memory size: {getsizeof(Lop_even)}")
+        # eigvals = ssl.eigs(Lop_even, k=int((2*j+1)*M)**2/2-2, return_eigenvectors=False)
 
-        # print(f"Lop is dense, memory size: {getsizeof(Lop)} bytes")
-        # print(f"g: {g}, Lop_even shape: {Lop_even.shape}")
-        # # Compute eigenvalues using dense matrix solver
-        # eigvals = sl.eigvals(Lop_even)
+        # Non sparse/ Dense
+        Lop_even = create_parity_block(Lop, M, j)
+        print(f"Lop is dense, memory size: {getsizeof(Lop)} bytes")
+        print(f"g: {g}, Lop_even shape: {Lop_even.shape}")
+        # Compute eigenvalues using dense matrix solver
+        eigvals = sl.eigvals(Lop_even)
 
         np.save(file_path,eigvals)
 
-    # else:
-        # print(f"{file_path} already exists.")
+    else:
+        print(f"{file_path} already exists.")
     Lop_even_eigvals = np.load(file_path)
 
     return Lop_even_eigvals

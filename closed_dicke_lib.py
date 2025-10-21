@@ -430,6 +430,52 @@ def p_goe(s):
     """
     return (np.pi / 2) * s * np.exp(-np.pi * s**2 / 4)
 
+# def compute_eta(unfolded_spacings, bins=100):
+#     """
+#     Compute the spectral measure η using your histogram data
+#     and analytic expressions for p_{2D-P}(s) and p_{GinUE}(s).
+
+#     Parameters
+#     ----------
+#     unfolded_spacing : array-like
+#         The unfolded spacing data from your system (not histogrammed yet).
+    
+#     bins : int
+#         Number of bins to use for histogram of p(s).
+
+#     Returns
+#     -------
+#     eta : float
+#         Spectral measure η.
+#     """
+
+#     # At module level or during setup, compute and store once:
+#     fixed_s_vals = np.linspace(0, 3, 1000)
+#     p_poisson_fixed = p_poissonian(fixed_s_vals)
+#     p_ginue_fixed = p_goe(fixed_s_vals)
+#     eta_denominator = simpson((p_ginue_fixed - p_poisson_fixed)**2, x=fixed_s_vals)
+#     print(f"Denominator for eta: {eta_denominator}")
+
+#     # Histogram your observed P(s)
+#     hist, bin_edges = np.histogram(unfolded_spacings, bins=bins, density=True)
+#     s_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+
+#     # Interpolation range (use only the meaningful support)
+#     s_vals = np.linspace(0, np.max(s_centres), 1000)
+
+#     # Interpolate p(s)
+#     f_ps = interp1d(s_centres, hist, kind='linear', bounds_error=False, fill_value=0.0)
+
+#     # Evaluate all distributions on common support
+#     ps_interp = f_ps(s_vals)
+#     p_poisson_vals = p_poissonian(s_vals)
+
+#     # Compute numerator and denominator using Simpson's rule
+#     numerator = simpson((ps_interp - p_poisson_vals)**2, x = s_vals)
+#     eta = numerator / eta_denominator
+    
+#     return eta
+
 def compute_eta(unfolded_spacings, bins=100):
     """
     Compute the spectral measure η using your histogram data
@@ -449,28 +495,18 @@ def compute_eta(unfolded_spacings, bins=100):
         Spectral measure η.
     """
 
-    # At module level or during setup, compute and store once:
-    fixed_s_vals = np.linspace(0, 3, 1000)
-    p_poisson_fixed = p_poissonian(fixed_s_vals)
-    p_ginue_fixed = p_goe(fixed_s_vals)
-    eta_denominator = simpson((p_ginue_fixed - p_poisson_fixed)**2, x=fixed_s_vals)
-
     # Histogram your observed P(s)
     hist, bin_edges = np.histogram(unfolded_spacings, bins=bins, density=True)
     s_centres = (bin_edges[:-1] + bin_edges[1:]) / 2
+    s = bin_edges[1:] - bin_edges[:-1] 
 
-    # Interpolation range (use only the meaningful support)
-    s_vals = np.linspace(0, np.max(s_centres), 1000)
-
-    # Interpolate p(s)
-    f_ps = interp1d(s_centres, hist, kind='linear', bounds_error=False, fill_value=0.0)
-
-    # Evaluate all distributions on common support
-    ps_interp = f_ps(s_vals)
-    p_poisson_vals = p_poissonian(s_vals)
+    p_poisson_center = p_poissonian(s_centres)
+    p_ginue_center = p_goe(s_centres)
+    eta_denominator = np.sum(((p_ginue_center - p_poisson_center)**2)*s)
+    print(f"Denominator for eta: {eta_denominator}")
 
     # Compute numerator and denominator using Simpson's rule
-    numerator = simpson((ps_interp - p_poisson_vals)**2, x = s_vals)
+    numerator = np.sum(((hist - p_poisson_center)**2) * s)
     eta = numerator / eta_denominator
     
     return eta
@@ -751,3 +787,233 @@ def sff_poi_list_fun(N, β, tlist, v, deg, unfl_proc, ntraj):
     sff_list = np.load(file_path)
 
     return sff_list
+
+import numpy as np
+import matplotlib.pyplot as plt
+import os
+import scipy.linalg as sl
+from scipy.integrate import simpson
+from scipy.interpolate import interp1d
+from scipy.special import j1
+
+try:
+    from closed_dicke_lib import unf_eigval_poly_fun, compute_eta
+    from closed_dicke_lib import DH_par_fun  # optional, used to get exact even-parity spectrum
+    have_user_lib = True
+except Exception:
+    have_user_lib = False
+
+# ----------------------------- Perturbation functions -----------------------------
+
+def second_order_shift(n, m, j, ω, ω0, g, eps=1e-12):
+    """Compute the second-order energy shift E^{(2)}_{n,m} for the Dicke model
+
+    Using the non-degenerate formula and the four intermediate states.
+    The interaction operator used here matches the user's H1 prefactor 1/sqrt(2j).
+
+    Parameters
+    ----------
+    n : int
+        Photon number (0..M-1)
+    m : int
+        Spin projection (-j..j)
+    j : float
+        Total spin
+    ω, ω0 : float
+        Mode and atomic frequencies
+    g : float
+        Coupling strength (same scale as in user's Hamiltonian: H = H0 + g * H1)
+    eps : float
+        Small regularizer to avoid division by zero at exact resonance. If a denominator
+        is smaller than eps, that term is skipped (treated as negligible for non-degenerate PT).
+    """
+    pref = (g**2) / (2 * j)  # because H1 has 1/sqrt(2j) and second order brings square
+
+    # spin algebra factors
+    def S_plus(m, j):
+        return np.sqrt(max((j - m) * (j + m + 1), 0.0))
+
+    def S_minus(m, j):
+        return np.sqrt(max((j + m) * (j - m + 1), 0.0))
+
+    A = S_plus(m, j)
+    B = S_minus(m, j)
+
+    # four matrix elements magnitudes squared (without g prefactor)
+
+    # 1) a J_+ : n * A^2 ; denom = +(ω - ω0)
+    num3 = n * (A ** 2)
+    den3 = (ω - ω0)
+
+    # 2) a^\dagger J_- : (n+1) * B^2 ; denom = -(ω - ω0)
+    num2 = (n + 1) * (B ** 2)
+    den2 = -(ω - ω0)
+
+    # 3) a^\dagger J_+ : (n+1) * A^2 ; denom = -(ω + ω0)
+    num1 = (n + 1) * (A ** 2)
+    den1 = -(ω + ω0)    
+
+    # 4) a J_- : n * B^2 ; denom = +(ω + ω0)
+    num4 = n * (B ** 2)
+    den4 = (ω + ω0)
+
+    terms = []
+    for num, den in ((num1, den1), (num2, den2), (num3, den3), (num4, den4)):
+        if np.abs(den) < eps:
+            # near-resonant: skip term to keep non-degenerate perturbation safe
+            terms.append(0.0)
+        else:
+            terms.append(num / den)
+
+    E2 = pref * sum(terms)
+    return E2
+
+
+import os
+import numpy as np
+
+def perturbative_spectrum(ω, ω0, j, M, g, α=0.6, skip_resonant=True, eps=1e-12, parity=+1):
+    """Build perturbative spectrum E = E0 + E2 for truncated product basis and filter by parity.
+
+    Photon numbers: n = 0..M-1
+    Spin projections: m = -j, -j+1, ..., j
+
+    Parameters
+    ----------
+    parity : {+1, -1, None}
+        If +1 or -1, keep only eigenvalues for which (-1)^(n + m + j) == parity.
+        If None, keep all eigenvalues.
+    Returns
+    -------
+    energies_sorted : ndarray
+        Sorted energies (central α fraction) after parity filtering.
+    nm_list_filtered : list of (n,m)
+        Corresponding (n,m) tuples for each energy in the returned array.
+    """
+    # Validate j: allow integer or half-integer by checking 2*j is integer
+    if not float(2 * j).is_integer():
+        raise ValueError("j must be integer or half-integer (e.g. 1, 1.5, 2, ...).")
+
+    # safe cast for range usage
+    j_int = int(np.round(j))
+
+    # Path to save converged eigenvalues (include parity in filename)
+    os.makedirs("evals_perturb", exist_ok=True)
+    parity_tag = f"parity={int(parity)}" if parity in (+1, -1) else "parity=all"
+    file_path = (
+        f"evals_perturb/evals_perturb_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}"
+        f"_g={g}_α={α}_{parity_tag}.npy"
+    )
+
+    if not os.path.exists(file_path):
+        print(f"{file_path} does not exist, computing converged eigenvalues.")
+        energies = []
+        nm_list = []
+        for n in range(M):
+            # m ranges from -j to j in integer steps (works for half-integer j as well)
+            m_vals = [(-j) + k for k in range(int(2 * j) + 1)]  # step = 1
+            for m in m_vals:
+                # compute unperturbed + second order shift (user must have second_order_shift defined)
+                E0 = ω * n + ω0 * m
+                E2 = second_order_shift(n, m, j, ω, ω0, g, eps=eps)
+                energies.append(E0 + E2)
+                nm_list.append((n, m))
+
+        energies = np.array(energies)
+        nm_list = np.array(nm_list, dtype=object)
+
+        # Apply parity filtering if requested
+        if parity in (+1, -1):
+            keep_mask = []
+            for (n, m) in nm_list:
+                # exponent should be integer (n integer, m+j either integer or half-integer but sum integer).
+                exponent = n + m + j
+                # numeric safety: round to nearest integer
+                exponent_int = int(round(exponent))
+                # check that exponent is indeed integer (numerical sanity)
+                if not np.isclose(exponent, exponent_int, atol=1e-9):
+                    raise ValueError(f"Parity exponent n+m+j not integer for n={n}, m={m}, j={j}")
+                parity_val = 1 if (exponent_int % 2 == 0) else -1
+                keep_mask.append(parity_val == parity)
+            keep_mask = np.array(keep_mask, dtype=bool)
+            energies = energies[keep_mask]
+            nm_list = nm_list[keep_mask]
+
+        # keep the central α fraction of the spectrum (by sorted energy)
+        sort_idx = np.argsort(energies)
+        energies_sorted_full = energies[sort_idx]
+        nm_sorted_full = nm_list[sort_idx]
+        N = len(energies_sorted_full)
+
+        start_idx = int((1 - α) / 2 * N)
+        end_idx = int((1 + α) / 2 * N)
+        energies_central = energies_sorted_full[start_idx:end_idx]
+        # nm_central = nm_sorted_full[start_idx:end_idx]
+
+        # Save energies and nm mapping together (as a structured npy)
+        # We'll save a 2-element object: (energies_central, nm_central)
+        np.save(file_path, energies_central)
+    else:
+        print(f"{file_path} already exists. Loading saved data.")
+        energies_central = np.load(file_path, allow_pickle=True)
+
+    return np.sort(energies_central)
+
+
+# --------------------------- Level statistics utilities ---------------------------
+
+def nearest_neighbor_spacings(unfolded_levels):
+    """Return nearest-neighbour spacings from an unfolded spectrum (already monotonic)."""
+    s = np.diff(np.sort(unfolded_levels))
+    return s
+
+
+def hist_ps(s, bins=50, density=True):
+    counts, edges = np.histogram(s, bins=bins, density=density)
+    centers = 0.5 * (edges[:-1] + edges[1:])
+    return centers, counts
+
+
+# --------------------------- sff perturbed ---------------------------
+def sff_perturb_list_fun(ω, ω0, j, M, g, β, tlist, v, deg, unfl_proc, tol = 0.1, α = 0.9):
+    '''
+    Calculates the sff with energies of the Dicke Hamiltonian at each time step for a single trajectory.
+    Args:
+    - j : Pseudospin
+    - M : Upper limit of bosonic fock states
+    - g : Coupling strength
+    - β : Inverse Temperature
+    - tlist : pass time list as an array
+    '''
+    os.makedirs("sff_perturb",exist_ok=True)
+    eigvals = perturbative_spectrum(ω, ω0, j, M, g)
+    eig_d = len(eigvals)
+
+    if unfl_proc=="local":
+        eigvals = unf_eigval_fun(v, eigvals)
+        file_path = f"sff_perturb/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_v={v}_tol={tol}.npy"
+    elif unfl_proc == "poly":
+        eigvals = unf_eigval_poly_fun(deg, eigvals)
+        file_path = f"sff_perturb/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_deg={deg}_tol={tol}.npy"
+    elif unfl_proc == None:
+        eigvals = eigvals
+        file_path = f"sff_perturb/sff_j={j}_M={M}_ω={ω}_ω0={ω0}_gc={np.round(np.sqrt(ω*ω0)/2,2)}_β={β}_g={g}_α={α}_tol={tol}.npy"
+    
+    if not os.path.exists(file_path):
+        print(f"{file_path} does not exist, generating data.")
+        sff_list = []
+        for t in tqdm(tlist):
+            sff = 0
+            norm = 0
+            for eigval in eigvals:
+                sff += np.exp(-(β+1j*t)*(eigval))
+                norm += np.exp(-β*eigval)
+            sff = np.conjugate(sff)*sff/(norm**2)
+            sff_list.append(sff)
+            np.save(file_path,np.array(sff_list))
+    else:
+        print(f"{file_path} already exists.")
+    
+    sff_list = np.load(file_path)
+
+    return sff_list, eig_d

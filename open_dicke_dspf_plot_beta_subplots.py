@@ -9,7 +9,7 @@ j = 20; M = 80
 gm_arr = [1.0, 1.5, 2.0]
 gp = 3.0
 γ = 2.0
-β_vals = [0]
+β_vals = [0]    
 
 method = "mcsolve"
 ntraj = 100
